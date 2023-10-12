@@ -222,25 +222,19 @@ class SOOSCsaAnalysis {
   async runSyft(): Promise<void> {
     return new Promise((resolve, reject) => {
       const args = [this.args.targetToScan, "-o json=./results.json", this.args.otherOptions];
-      const command = spawn("syft", args, { shell: true });
-
-      command.stdout.on("data", (data) => {
-        logger.info(`stdout: ${data}`);
-      });
-      command.stderr.on("data", (data) => {
-        logger.error(`stderr: ${data}`);
+      logger.info(`Running syft with args: ${args}`);
+      const syftProcess = spawn("syft", args, {
+        shell: true,
+        stdio: "inherit",
       });
 
-      command.on("close", (code) => {
-        if (code !== 0) {
-          reject(new Error(`syft command exited with code ${code}`));
-        } else {
+      syftProcess.on("close", (code) => {
+        logger.verboseDebug(`syft: child process exited with code ${code}`);
+        if (code === 0) {
           resolve();
+        } else {
+          reject(`syft: child process exited with code ${code}`);
         }
-      });
-
-      command.on("error", (error) => {
-        reject(error);
       });
     });
   }
