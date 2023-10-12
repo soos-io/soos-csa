@@ -23,7 +23,7 @@ interface SOOSCsaAnalysisArgs {
   logLevel: LogLevel;
   onFailure: string;
   operatingEnvironment: string;
-  otherArgs: string;
+  otherOptions: string;
   projectName: string;
   scriptVersion: string;
   targetToScan: string;
@@ -68,8 +68,8 @@ class SOOSCsaAnalysis {
       default: "INFO",
       required: false,
     });
-    parser.add_argument("--otherArgs", {
-      help: "Other arguments to pass to syft.",
+    parser.add_argument("--otherOptions", {
+      help: "Other Options to pass to syft.",
       default: null,
       required: false,
     });
@@ -153,7 +153,7 @@ class SOOSCsaAnalysis {
 
   async runAnalysis(): Promise<void> {
     try {
-      logger.info("Starting SOOS Csa Analysis");
+      logger.info("Starting SOOS CSA Analysis");
       logger.info(`Creating scan for project '${this.args.projectName}'...`);
 
       const {
@@ -184,7 +184,7 @@ class SOOSCsaAnalysis {
       logger.info("Scan created successfully.");
       logger.logLineSeparator();
 
-      logger.info("Generating Manifest for scan");
+      logger.info("Generating SBOM for scan");
       await this.runSyft();
       logger.info("Manifest generation completed successfully");
       logger.info("Uploading results");
@@ -229,7 +229,7 @@ class SOOSCsaAnalysis {
 
   async runSyft(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const args = [this.args.targetToScan, this.args.otherArgs, "-o json=./results.json"];
+      const args = [this.args.targetToScan, "-o json=./results.json", this.args.otherOptions];
       const command = spawn("syft", args, { shell: true });
 
       command.stdout.on("data", (data) => {
