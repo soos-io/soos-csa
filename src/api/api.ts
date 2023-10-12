@@ -251,64 +251,6 @@ export async function startAnalysisScan({
   await client.put(`clients/${clientId}/projects/${projectHash}/analysis/${analysisId}`);
 }
 
-export enum OutputFormatEnum {
-  SARIF = "SARIF",
-}
-
-interface IGetAnalysisScanOutputFormatArguments extends IHttpRequestParameters {
-  clientHash: string;
-  projectHash: string;
-  branchHash: string;
-  scanId: string;
-  scanType: string;
-  outputFormat: OutputFormatEnum;
-}
-
-export async function getAnalysisScanOutputFormat({
-  baseUri,
-  apiKey,
-  clientHash,
-  projectHash,
-  branchHash,
-  scanId,
-  scanType,
-  outputFormat,
-}: IGetAnalysisScanOutputFormatArguments): Promise<Record<string, unknown> | null> {
-  const client = createHttpClient({
-    baseUri,
-    apiKey,
-    clientName: "Get Output Format",
-    errorResponseHandler: (rejectedResponse) => {
-      if (
-        !isAxiosError<ICodedMessageModel | undefined>(rejectedResponse) &&
-        rejectedResponse.response?.data?.code !== "ApiValidationBadRequest"
-      ) {
-        logger.error(
-          "Get Output Format",
-          `Response: ${rejectedResponse.response.status} (${rejectedResponse.response.statusText})`
-        );
-        logger.error("Get Output Format", `Response Body: `, rejectedResponse.response.data);
-      }
-    },
-  });
-  try {
-    const response = await client.get<Record<string, unknown>>(
-      `clients/${clientHash}/projects/${projectHash}/branches/${branchHash}/scan-types/${scanType}/scans/${scanId}/formats/${outputFormat}`
-    );
-    return response.data;
-  } catch (e: unknown) {
-    if (
-      isAxiosError<ICodedMessageModel | undefined>(e) &&
-      e.response?.data?.code === "ApiValidationBadRequest"
-    ) {
-      logger.info(`SARIF output will not be created. ${e.response.data.message}`);
-      return null;
-    }
-
-    throw e;
-  }
-}
-
 interface ICheckAnalysisScanStatusArguments extends IHttpRequestParameters {
   reportStatusUrl: string;
 }
