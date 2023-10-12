@@ -25,18 +25,17 @@ export class Logger {
 
   private getTimeStamp(): string {
     const now = new Date();
-    const dateString = now.toLocaleString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-      timeZoneName: "short",
-    });
+    const year = now.getFullYear();
+    const month = (now.getMonth() + 1).toString().padStart(2, "0");
+    const day = now.getDate().toString().padStart(2, "0");
+    const hours = now.getHours() % 12 || 12; // Convert to 12-hour format
+    const ampm = now.getHours() >= 12 ? "PM" : "AM";
+    const minutes = now.getMinutes().toString().padStart(2, "0");
+    const seconds = now.getSeconds().toString().padStart(2, "0");
 
-    return dateString;
+    const timestamp = `${month}/${day}/${year} ${hours}:${minutes}:${seconds} ${ampm}`;
+
+    return `${timestamp}`;
   }
 
   private logWithTimestamp(level: LogLevel, message?: any, ...optionalParams: any[]): void {
@@ -93,5 +92,10 @@ export class Logger {
     if (this.verbose) {
       this.error(message, ...optionalParams);
     }
+  }
+
+  logLineSeparator(): void {
+    const separator = "-".repeat(80);
+    this.console.log(separator);
   }
 }

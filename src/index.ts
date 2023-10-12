@@ -182,6 +182,7 @@ class SOOSCsaAnalysis {
       logger.info(`Branch Hash: ${branchHash}`);
       logger.info(`Scan Id: ${analysisScanId}`);
       logger.info("Scan created successfully.");
+      logger.logLineSeparator();
 
       logger.info("Generating Manifest for scan");
       await this.runSyft();
@@ -210,6 +211,7 @@ class SOOSCsaAnalysis {
         sbomFileUploadResponse.manifests?.map((m) => `  ${m.name}: ${m.statusMessage}`).join("\n")
       );
 
+      logger.logLineSeparator();
       logger.info("Starting analysis scan");
       await startAnalysisScan({
         baseUri: this.args.apiURL,
