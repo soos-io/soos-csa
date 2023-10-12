@@ -178,7 +178,7 @@ class SOOSCsaAnalysis {
 
       logger.info("Generating SBOM for scan");
       await this.runSyft();
-      logger.info("Manifest generation completed successfully");
+      logger.info("SBOM generation completed successfully");
       logger.info("Uploading results");
       const fileReadStream = FileSystem.createReadStream("./results.json", {
         encoding: FILE_ENCODING,
