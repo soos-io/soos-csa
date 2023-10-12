@@ -6,4 +6,5 @@
     "cSpell.words": [
       "SOOS"
     ],
+    "sarif-viewer.connectToGithubCodeScanning": "off",
   }

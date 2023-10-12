@@ -196,7 +196,7 @@ export async function uploadSBOMFiles({
     errorResponseHandler: (rejectedResponse) => {
       if (isAxiosError<IUploadResponseError | undefined>(rejectedResponse)) {
         if (rejectedResponse.response?.data?.code === "NoManifestsAccepted") {
-          console.warn(
+          logger.info(
             `SBOM Files: \n`,
             `  ${rejectedResponse.response.data.message} \n`,
             rejectedResponse.response.data.manifests
@@ -283,11 +283,11 @@ export async function getAnalysisScanOutputFormat({
         !isAxiosError<ICodedMessageModel | undefined>(rejectedResponse) &&
         rejectedResponse.response?.data?.code !== "ApiValidationBadRequest"
       ) {
-        console.error(
+        logger.error(
           "Get Output Format",
           `Response: ${rejectedResponse.response.status} (${rejectedResponse.response.statusText})`
         );
-        console.error("Get Output Format", `Response Body: `, rejectedResponse.response.data);
+        logger.error("Get Output Format", `Response Body: `, rejectedResponse.response.data);
       }
     },
   });
@@ -301,7 +301,7 @@ export async function getAnalysisScanOutputFormat({
       isAxiosError<ICodedMessageModel | undefined>(e) &&
       e.response?.data?.code === "ApiValidationBadRequest"
     ) {
-      console.warn(`SARIF output will not be created. ${e.response.data.message}`);
+      logger.info(`SARIF output will not be created. ${e.response.data.message}`);
       return null;
     }
 

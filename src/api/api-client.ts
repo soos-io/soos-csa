@@ -43,23 +43,23 @@ export default function createHttpClient({
 
   client.interceptors.request.use(
     (request) => {
-      console.log(clientName);
-      console.log(clientName, `Request Url (${request.method}): ${request.url}`);
+      logger.info(clientName);
+      logger.info(clientName, `Request Url (${request.method}): ${request.url}`);
       if (request.data) {
-        console.log(clientName, `Request Body: ${JSON.stringify(request.data)}`);
+        logger.verboseDebug(clientName, `Request Body: ${JSON.stringify(request.data)}`);
       }
       return request;
     },
     (rejectedRequest) => {
-      console.log(clientName, "Request Error: ", rejectedRequest);
+      logger.info(clientName, "Request Error: ", rejectedRequest);
       return Promise.reject(rejectedRequest);
     }
   );
 
   client.interceptors.response.use(
     (response) => {
-      console.log(clientName, `Response: ${response.status} (${response.statusText})`);
-      console.log(clientName, `Response Body: ${JSON.stringify(response.data)}`);
+      logger.info(clientName, `Response: ${response.status} (${response.statusText})`);
+      logger.verboseDebug(clientName, `Response Body: ${JSON.stringify(response.data)}`);
       return response;
     },
     (rejectedResponse) => {
@@ -67,11 +67,11 @@ export default function createHttpClient({
         if (errorResponseHandler) {
           errorResponseHandler(rejectedResponse);
         } else {
-          console.error(
+          logger.error(
             clientName,
             `Response: ${rejectedResponse.response.status} (${rejectedResponse.response.statusText})`
           );
-          console.error(clientName, `Response Body: `, rejectedResponse.response.data);
+          logger.error(clientName, `Response Body: `, rejectedResponse.response.data);
         }
       }
       if (isAxiosError<ICodedMessageModel | undefined>(rejectedResponse)) {
