@@ -17,7 +17,6 @@ interface SOOSCsaAnalysisArgs {
   buildVersion: string;
   clientId: string;
   commitHash: string;
-  helpFormatted: boolean;
   integrationName: string;
   integrationType: string;
   logLevel: LogLevel;
@@ -35,13 +34,6 @@ class SOOSCsaAnalysis {
 
   static parseArgs(): SOOSCsaAnalysisArgs {
     const parser = new ArgumentParser({ description: "SOOS Csa" });
-
-    parser.add_argument("-hf", "--helpFormatted", {
-      help: "Print the --help command in markdown table format",
-      action: "store_false",
-      default: false,
-      required: false,
-    });
 
     parser.add_argument("targetToScan", {
       help: "The target to scan. Should be a docker image name or a path to a directory containing a Dockerfile",
