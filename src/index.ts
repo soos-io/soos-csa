@@ -48,15 +48,15 @@ class SOOSCsaAnalysis {
     });
     parser.add_argument("--clientId", {
       help: "SOOS Client ID - get yours from https://app.soos.io/integrate/sca",
-      required: false,
+      required: true,
     });
     parser.add_argument("--apiKey", {
       help: "SOOS API Key - get yours from https://app.soos.io/integrate/sca",
-      required: false,
+      required: true,
     });
     parser.add_argument("--projectName", {
       help: "Project Name - this is what will be displayed in the SOOS app.",
-      required: false,
+      required: true,
     });
     parser.add_argument("--apiURL", {
       help: "SOOS API URL - Intended for internal use only, do not modify.",
@@ -161,7 +161,6 @@ class SOOSCsaAnalysis {
         branchHash,
         scanId: analysisScanId,
         reportUrl,
-        scanStatusUrl: reportStatusUrl,
       } = await createScan({
         baseUri: this.args.apiURL,
         apiKey: this.args.apiKey,
@@ -182,11 +181,8 @@ class SOOSCsaAnalysis {
       logger.info(`Project Hash: ${projectHash}`);
       logger.info(`Branch Hash: ${branchHash}`);
       logger.info(`Scan Id: ${analysisScanId}`);
-      logger.info(`Report Url: ${reportUrl}`);
-      logger.info(`Report Status Url: ${reportStatusUrl}`);
       logger.info("Scan created successfully.");
 
-      // Run syft and upload results
       logger.info("Generating Manifest for scan");
       await this.runSyft();
       logger.info("Manifest generation completed successfully");
