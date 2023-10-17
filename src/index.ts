@@ -1,7 +1,7 @@
 import { ArgumentParser } from "argparse";
 import * as FileSystem from "fs";
 import { exit } from "process";
-import { ScanType, createScan, startAnalysisScan, uploadSBOMFiles } from "./api/api";
+import { ScanType, createScan, startAnalysisScan, uploadContainerFiles } from "./api/api";
 import { spawn } from "child_process";
 import FormData from "form-data";
 import { FILE_ENCODING } from "./utils/Constants";
@@ -176,9 +176,9 @@ class SOOSCsaAnalysis {
       logger.info("Scan created successfully.");
       logger.logLineSeparator();
 
-      logger.info("Generating SBOM for scan");
+      logger.info("Generating container file for scan");
       await this.runSyft();
-      logger.info("SBOM generation completed successfully");
+      logger.info("Container file generation completed successfully");
       logger.info("Uploading results");
       const fileReadStream = FileSystem.createReadStream("./results.json", {
         encoding: FILE_ENCODING,
@@ -187,20 +187,22 @@ class SOOSCsaAnalysis {
       const formData = new FormData();
       formData.append("file", fileReadStream);
 
-      const sbomFileUploadResponse = await uploadSBOMFiles({
+      const containerFileUploadResponse = await uploadContainerFiles({
         baseUri: this.args.apiURL,
         apiKey: this.args.apiKey,
         clientId: this.args.clientId,
         projectHash,
         branchHash,
         analysisId: analysisScanId,
-        sbomFiles: formData,
+        containerFiles: formData,
       });
 
       logger.info(
-        ` SBOM Files: \n`,
-        `  ${sbomFileUploadResponse.message} \n`,
-        sbomFileUploadResponse.manifests?.map((m) => `  ${m.name}: ${m.statusMessage}`).join("\n")
+        ` Container Files: \n`,
+        `  ${containerFileUploadResponse.message} \n`,
+        containerFileUploadResponse.manifests
+          ?.map((m) => `  ${m.name}: ${m.statusMessage}`)
+          .join("\n")
       );
 
       logger.logLineSeparator();
@@ -214,7 +216,7 @@ class SOOSCsaAnalysis {
       });
       logger.info(`Analysis scan started successfully, to see the results visit: ${reportUrl}`);
     } catch (error) {
-      logger.info(`Error: ${error}`);
+      logger.error(`Error: ${error}`);
       exit(1);
     }
   }
