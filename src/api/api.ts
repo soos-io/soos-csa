@@ -115,12 +115,12 @@ export async function createScan({
   };
 }
 
-interface IUploadSBOMFilesArguments extends IHttpRequestParameters {
+interface IUploadContainerFilesArguments extends IHttpRequestParameters {
   clientId: string;
   projectHash: string;
   branchHash: string;
   analysisId: string;
-  sbomFiles: FormData;
+  containerFiles: FormData;
 }
 
 export enum PackageManagerType {
@@ -181,23 +181,23 @@ interface IUploadResponseError extends ICodedMessageModel {
 /**
  * @throws Error
  */
-export async function uploadSBOMFiles({
+export async function uploadContainerFiles({
   baseUri,
   apiKey,
   clientId,
   projectHash,
   analysisId,
-  sbomFiles,
-}: IUploadSBOMFilesArguments): Promise<IUploadManifestResponse> {
+  containerFiles: containerFiles,
+}: IUploadContainerFilesArguments): Promise<IUploadManifestResponse> {
   const client = createHttpClient({
     baseUri,
     apiKey,
-    clientName: "Upload  SBOM Files",
+    clientName: "Upload  Container Files",
     errorResponseHandler: (rejectedResponse) => {
       if (isAxiosError<IUploadResponseError | undefined>(rejectedResponse)) {
         if (rejectedResponse.response?.data?.code === "NoManifestsAccepted") {
           logger.info(
-            `SBOM Files: \n`,
+            `Container Files: \n`,
             `  ${rejectedResponse.response.data.message} \n`,
             rejectedResponse.response.data.manifests
               ?.map((m) => `  ${m.name}: ${m.statusMessage}`)
@@ -208,27 +208,23 @@ export async function uploadSBOMFiles({
     },
   });
 
-  try {
-    const headers: FormData.Headers = await new Promise((resolve) =>
-      sbomFiles.getLength((error, length) =>
-        isNil(error) && !isNil(length)
-          ? resolve(sbomFiles.getHeaders({ "Content-Length": length.toString() }))
-          : resolve(sbomFiles.getHeaders())
-      )
-    );
+  const headers: FormData.Headers = await new Promise((resolve) =>
+    containerFiles.getLength((error, length) =>
+      isNil(error) && !isNil(length)
+        ? resolve(containerFiles.getHeaders({ "Content-Length": length.toString() }))
+        : resolve(containerFiles.getHeaders())
+    )
+  );
 
-    const response = await client.post<IUploadManifestResponse>(
-      `clients/${clientId}/projects/${projectHash}/analysis/${analysisId}/manifests`,
-      sbomFiles,
-      {
-        headers: headers,
-      }
-    );
+  const response = await client.post<IUploadManifestResponse>(
+    `clients/${clientId}/projects/${projectHash}/analysis/${analysisId}/manifests`,
+    containerFiles,
+    {
+      headers: headers,
+    }
+  );
 
-    return response.data;
-  } catch (e) {
-    throw e;
-  }
+  return response.data;
 }
 
 interface IStartAnalysisArguments extends IHttpRequestParameters {

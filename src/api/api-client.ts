@@ -79,6 +79,12 @@ export default function createHttpClient({
           case 503:
             exit();
             break;
+          default:
+            logger.error(`Request failed with status code ${rejectedResponse.response?.status}`);
+            logger.error(
+              `Error Code: ${rejectedResponse.response?.data?.code ?? `Unknown Error code`}`
+            );
+            logger.error(rejectedResponse.response?.data?.message ?? `Unknown Error`);
         }
       }
       return Promise.reject(rejectedResponse);
