@@ -11,8 +11,9 @@ import {
 } from "./api/api";
 import { spawn } from "child_process";
 import FormData from "form-data";
-import { FILE_ENCODING } from "./utils/Constants";
+import { FILE_ENCODING, SOOS_CLIENT_ID_ENV_VAR, SOOS_API_KEY_ENV_VAR } from "./utils/Constants";
 import { LogLevel, Logger } from "./utils/Logger";
+import { ensureValue, getEnvVariable } from "./utils/Utilities";
 
 interface SOOSCsaAnalysisArgs {
   apiKey: string;
@@ -47,11 +48,13 @@ class SOOSCsaAnalysis {
     });
     parser.add_argument("--clientId", {
       help: "SOOS Client ID - get yours from https://app.soos.io/integrate/sca",
-      required: true,
+      default: getEnvVariable(SOOS_CLIENT_ID_ENV_VAR),
+      required: false,
     });
     parser.add_argument("--apiKey", {
       help: "SOOS API Key - get yours from https://app.soos.io/integrate/sca",
-      required: true,
+      default: getEnvVariable(SOOS_API_KEY_ENV_VAR),
+      required: false,
     });
     parser.add_argument("--projectName", {
       help: "Project Name - this is what will be displayed in the SOOS app.",
@@ -271,6 +274,8 @@ class SOOSCsaAnalysis {
       const args = this.parseArgs();
       global.logger.setMinLogLevel(args.logLevel);
       global.logger.setVerbose(args.verbose);
+      ensureValue(args.clientId, "clientId");
+      ensureValue(args.apiKey, "apiKey");
       const csaAnalysis = new SOOSCsaAnalysis(args);
       await csaAnalysis.runAnalysis();
     } catch (error) {

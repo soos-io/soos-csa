@@ -9,7 +9,7 @@ export function delay(ms: number) {
 export const removeDuplicates = <T>(list: Array<T>): Array<T> => [...new Set(list)];
 
 export const ensureValue = <T>(value: T | null | undefined, propertyName: string): T => {
-  if (isNil(value)) throw new Error(`'${propertyName}' is required for task execution.`);
+  if (isNil(value)) throw new Error(`'${propertyName}' is required for script execution.`);
   return value;
 };
 
@@ -67,4 +67,8 @@ export const obfuscateProperties = <T extends Record<string, unknown> = Record<s
       [key]: properties.includes(key) ? replacement : value,
     };
   }, {} as T);
+};
+
+export const getEnvVariable = (name: string): string | null => {
+  return process.env[name] || null;
 };
