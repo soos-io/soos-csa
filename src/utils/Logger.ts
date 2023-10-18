@@ -1,11 +1,11 @@
 export enum LogLevel {
-  PASS = "PASS",
-  IGNORE = "IGNORE",
-  INFO = "INFO",
-  WARN = "WARN",
-  FAIL = "FAIL",
-  DEBUG = "DEBUG",
-  ERROR = "ERROR",
+  PASS = 0,
+  IGNORE = 1,
+  INFO = 2,
+  WARN = 3,
+  FAIL = 4,
+  DEBUG = 5,
+  ERROR = 6,
 }
 
 export class Logger {
@@ -40,8 +40,9 @@ export class Logger {
 
   private logWithTimestamp(level: LogLevel, message?: any, ...optionalParams: any[]): void {
     if (level >= this.minLogLevel) {
+      const logLevelkey = LogLevel[level];
       const timestamp = this.getTimeStamp();
-      const logMessage = `${timestamp} UTC [${level}] ${message}`;
+      const logMessage = `${timestamp} UTC [${logLevelkey}] ${message}`;
       this.console.log(logMessage, ...optionalParams);
     }
   }

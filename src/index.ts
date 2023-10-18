@@ -67,8 +67,16 @@ class SOOSCsaAnalysis {
     });
     parser.add_argument("--logLevel", {
       help: "Minimum level to show logs: PASS, IGNORE, INFO, WARN or FAIL.",
-      default: "INFO",
+      default: LogLevel.INFO,
       required: false,
+      type: (value: string) => {
+        const upperCaseValue = value.toUpperCase();
+        if (upperCaseValue in LogLevel) {
+          return LogLevel[upperCaseValue as keyof typeof LogLevel];
+        } else {
+          throw new Error(`Invalid log level: ${value}`);
+        }
+      },
     });
     parser.add_argument("--otherOptions", {
       help: "Other Options to pass to syft.",
