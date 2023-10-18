@@ -1,7 +1,14 @@
 import { ArgumentParser } from "argparse";
 import * as FileSystem from "fs";
 import { exit } from "process";
-import { ScanType, createScan, startAnalysisScan, uploadContainerFiles } from "./api/api";
+import {
+  ScanStatus,
+  ScanType,
+  createScan,
+  startAnalysisScan,
+  updateScanStatus,
+  uploadContainerFiles,
+} from "./api/api";
 import { spawn } from "child_process";
 import FormData from "form-data";
 import { FILE_ENCODING } from "./utils/Constants";
@@ -144,16 +151,15 @@ class SOOSCsaAnalysis {
   }
 
   async runAnalysis(): Promise<void> {
+    let projectHash: string | undefined;
+    let branchHash: string | undefined;
+    let analysisScanId: string | undefined;
+
     try {
       logger.info("Starting SOOS CSA Analysis");
       logger.info(`Creating scan for project '${this.args.projectName}'...`);
 
-      const {
-        projectHash,
-        branchHash,
-        scanId: analysisScanId,
-        reportUrl,
-      } = await createScan({
+      const result = await createScan({
         baseUri: this.args.apiURL,
         apiKey: this.args.apiKey,
         clientId: this.args.clientId,
@@ -169,6 +175,10 @@ class SOOSCsaAnalysis {
         appVersion: this.args.appVersion,
         scanType: ScanType.CSA,
       });
+
+      projectHash = result.projectHash;
+      branchHash = result.branchHash;
+      analysisScanId = result.scanId;
 
       logger.info(`Project Hash: ${projectHash}`);
       logger.info(`Branch Hash: ${branchHash}`);
@@ -214,8 +224,22 @@ class SOOSCsaAnalysis {
         projectHash,
         analysisId: analysisScanId,
       });
-      logger.info(`Analysis scan started successfully, to see the results visit: ${reportUrl}`);
+      logger.info(
+        `Analysis scan started successfully, to see the results visit: ${result.reportUrl}`
+      );
     } catch (error) {
+      if (projectHash && branchHash && analysisScanId)
+        await updateScanStatus({
+          baseUri: this.args.apiURL,
+          apiKey: this.args.apiKey,
+          clientId: this.args.clientId,
+          projectHash,
+          branchHash,
+          scanType: ScanType.CSA,
+          scanId: analysisScanId,
+          status: ScanStatus.Error,
+          message: `Error while performing scan.`,
+        });
       logger.error(`Error: ${error}`);
       exit(1);
     }
