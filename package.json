@@ -20,9 +20,10 @@
     "check": "npm run format && npm run typecheck && npm run test"
   },
   "dependencies": {
+    "@soos-io/api-client": "0.0.1-pre.14",
+    "argparse": "^2.0.1",
     "axios": "^0.27.2",
-    "tslib": "^2.6.2",
-    "argparse": "^2.0.1"
+    "tslib": "^2.6.2"
   },
   "devDependencies": {
     "@types/argparse": "^2.0.11",

@@ -1,14 +1,6 @@
 import { ArgumentParser } from "argparse";
 import * as FileSystem from "fs";
 import { exit } from "process";
-import {
-  ScanStatus,
-  ScanType,
-  createScan,
-  startAnalysisScan,
-  updateScanStatus,
-  uploadContainerFiles,
-} from "./api/api";
 import { spawn } from "child_process";
 import FormData from "form-data";
 import {
@@ -19,6 +11,13 @@ import {
 } from "./utils/Constants";
 import { LogLevel, Logger } from "./utils/Logger";
 import { ensureValue, getEnvVariable } from "./utils/Utilities";
+import {
+  SOOSAnalysisApiClient,
+  ScanStatus,
+  ScanType,
+  setSOOSApiClientLoggerMinLogLevel,
+  setSOOSApiClientLoggerVerbose,
+} from "@soos-io/api-client";
 
 interface SOOSCsaAnalysisArgs {
   apiKey: string;
@@ -44,7 +43,6 @@ interface SOOSCsaAnalysisArgs {
 
 class SOOSCsaAnalysis {
   constructor(private args: SOOSCsaAnalysisArgs) {}
-
   static parseArgs(): SOOSCsaAnalysisArgs {
     const parser = new ArgumentParser({ description: "SOOS Csa" });
 
@@ -170,14 +168,12 @@ class SOOSCsaAnalysis {
     let projectHash: string | undefined;
     let branchHash: string | undefined;
     let analysisScanId: string | undefined;
-
+    var soosApiClient = new SOOSAnalysisApiClient(this.args.apiKey, this.args.apiURL);
     try {
       logger.info("Starting SOOS CSA Analysis");
       logger.info(`Creating scan for project '${this.args.projectName}'...`);
 
-      const result = await createScan({
-        baseUri: this.args.apiURL,
-        apiKey: this.args.apiKey,
+      const result = await soosApiClient.createScan({
         clientId: this.args.clientId,
         projectName: this.args.projectName,
         commitHash: this.args.commitHash,
@@ -213,14 +209,12 @@ class SOOSCsaAnalysis {
       const formData = new FormData();
       formData.append("file", fileReadStream);
 
-      const containerFileUploadResponse = await uploadContainerFiles({
-        baseUri: this.args.apiURL,
-        apiKey: this.args.apiKey,
+      const containerFileUploadResponse = await soosApiClient.uploadManifestFiles({
         clientId: this.args.clientId,
         projectHash,
         branchHash,
         analysisId: analysisScanId,
-        containerFiles: formData,
+        manifestFiles: formData,
       });
 
       logger.info(
@@ -233,9 +227,7 @@ class SOOSCsaAnalysis {
 
       logger.logLineSeparator();
       logger.info("Starting analysis scan");
-      await startAnalysisScan({
-        baseUri: this.args.apiURL,
-        apiKey: this.args.apiKey,
+      await soosApiClient.startAnalysisScan({
         clientId: this.args.clientId,
         projectHash,
         analysisId: analysisScanId,
@@ -245,9 +237,7 @@ class SOOSCsaAnalysis {
       );
     } catch (error) {
       if (projectHash && branchHash && analysisScanId)
-        await updateScanStatus({
-          baseUri: this.args.apiURL,
-          apiKey: this.args.apiKey,
+        await soosApiClient.updateScanStatus({
           clientId: this.args.clientId,
           projectHash,
           branchHash,
@@ -256,7 +246,7 @@ class SOOSCsaAnalysis {
           status: ScanStatus.Error,
           message: `Error while performing scan.`,
         });
-      logger.error(`Error: ${error}`);
+      logger.error(error);
       exit(1);
     }
   }
@@ -287,6 +277,8 @@ class SOOSCsaAnalysis {
       const args = this.parseArgs();
       global.logger.setMinLogLevel(args.logLevel);
       global.logger.setVerbose(args.verbose);
+      setSOOSApiClientLoggerMinLogLevel(args.logLevel);
+      setSOOSApiClientLoggerVerbose(args.verbose);
       ensureValue(args.clientId, "clientId");
       ensureValue(args.apiKey, "apiKey");
       const csaAnalysis = new SOOSCsaAnalysis(args);
