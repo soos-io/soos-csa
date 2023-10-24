@@ -11,13 +11,7 @@ import {
 } from "./utils/Constants";
 import { LogLevel, Logger } from "./utils/Logger";
 import { ensureValue, getEnvVariable } from "./utils/Utilities";
-import {
-  SOOSAnalysisApiClient,
-  ScanStatus,
-  ScanType,
-  setSOOSApiClientLoggerMinLogLevel,
-  setSOOSApiClientLoggerVerbose,
-} from "@soos-io/api-client";
+import { SOOSAnalysisApiClient, ScanStatus, ScanType, soosLogger } from "@soos-io/api-client";
 
 interface SOOSCsaAnalysisArgs {
   apiKey: string;
@@ -277,8 +271,8 @@ class SOOSCsaAnalysis {
       const args = this.parseArgs();
       global.logger.setMinLogLevel(args.logLevel);
       global.logger.setVerbose(args.verbose);
-      setSOOSApiClientLoggerMinLogLevel(args.logLevel);
-      setSOOSApiClientLoggerVerbose(args.verbose);
+      soosLogger.setMinLogLevel(args.logLevel);
+      soosLogger.setVerbose(args.verbose);
       ensureValue(args.clientId, "clientId");
       ensureValue(args.apiKey, "apiKey");
       const csaAnalysis = new SOOSCsaAnalysis(args);
