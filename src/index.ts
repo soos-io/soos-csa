@@ -168,7 +168,7 @@ class SOOSCsaAnalysis {
     let projectHash: string | undefined;
     let branchHash: string | undefined;
     let analysisScanId: string | undefined;
-    var soosApiClient = new SOOSAnalysisApiClient(this.args.apiKey, this.args.apiURL);
+    const soosApiClient = new SOOSAnalysisApiClient(this.args.apiKey, this.args.apiURL);
     try {
       logger.info("Starting SOOS CSA Analysis");
       logger.info(`Creating scan for project '${this.args.projectName}'...`);
