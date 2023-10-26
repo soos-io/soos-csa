@@ -187,7 +187,7 @@ class SOOSCsaAnalysis {
 
       projectHash = result.projectHash;
       branchHash = result.branchHash;
-      analysisId = ensureValue(result.scanId, "result.scanId");
+      analysisId = ensureValue(result.analysisId, "result.scanId");
 
       logger.info(`Project Hash: ${projectHash}`);
       logger.info(`Branch Hash: ${branchHash}`);
