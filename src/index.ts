@@ -11,7 +11,8 @@ import {
 } from "./utils/Constants";
 import { LogLevel, Logger } from "./utils/Logger";
 import { ensureValue, getEnvVariable } from "./utils/Utilities";
-import { SOOSAnalysisApiClient, ScanStatus, ScanType, soosLogger } from "@soos-io/api-client";
+import SOOSAnalysisApiClient from "@soos-io/api-client/dist/api/SOOSAnalysisApiClient";
+import { ScanStatus, ScanType, soosLogger } from "@soos-io/api-client";
 
 interface SOOSCsaAnalysisArgs {
   apiKey: string;
@@ -161,7 +162,7 @@ class SOOSCsaAnalysis {
   async runAnalysis(): Promise<void> {
     let projectHash: string | undefined;
     let branchHash: string | undefined;
-    let analysisScanId: string | undefined;
+    let analysisId: string | undefined;
     const soosApiClient = new SOOSAnalysisApiClient(this.args.apiKey, this.args.apiURL);
     try {
       logger.info("Starting SOOS CSA Analysis");
@@ -179,16 +180,18 @@ class SOOSCsaAnalysis {
         operatingEnvironment: this.args.operatingEnvironment,
         integrationName: this.args.integrationName,
         appVersion: this.args.appVersion,
+        scriptVersion: null,
+        contributingDeveloperAudit: undefined,
         scanType: ScanType.CSA,
       });
 
       projectHash = result.projectHash;
       branchHash = result.branchHash;
-      analysisScanId = result.scanId;
+      analysisId = ensureValue(result.scanId, "result.scanId");
 
       logger.info(`Project Hash: ${projectHash}`);
       logger.info(`Branch Hash: ${branchHash}`);
-      logger.info(`Scan Id: ${analysisScanId}`);
+      logger.info(`Scan Id: ${analysisId}`);
       logger.info("Scan created successfully.");
       logger.logLineSeparator();
 
@@ -207,7 +210,7 @@ class SOOSCsaAnalysis {
         clientId: this.args.clientId,
         projectHash,
         branchHash,
-        analysisId: analysisScanId,
+        analysisId,
         manifestFiles: formData,
       });
 
@@ -221,22 +224,22 @@ class SOOSCsaAnalysis {
 
       logger.logLineSeparator();
       logger.info("Starting analysis scan");
-      await soosApiClient.startAnalysisScan({
+      await soosApiClient.startScan({
         clientId: this.args.clientId,
         projectHash,
-        analysisId: analysisScanId,
+        analysisId: analysisId,
       });
       logger.info(
-        `Analysis scan started successfully, to see the results visit: ${result.reportUrl}`
+        `Analysis scan started successfully, to see the results visit: ${result.scanStatusUrl}`
       );
     } catch (error) {
-      if (projectHash && branchHash && analysisScanId)
+      if (projectHash && branchHash && analysisId)
         await soosApiClient.updateScanStatus({
           clientId: this.args.clientId,
           projectHash,
           branchHash,
           scanType: ScanType.CSA,
-          scanId: analysisScanId,
+          scanId: analysisId,
           status: ScanStatus.Error,
           message: `Error while performing scan.`,
         });
