@@ -163,12 +163,12 @@ class SOOSCsaAnalysis {
     let projectHash: string | undefined;
     let branchHash: string | undefined;
     let analysisId: string | undefined;
-    const soosApiClient = new SOOSAnalysisApiClient(this.args.apiKey, this.args.apiURL);
+    const soosAnalysisApiClient = new SOOSAnalysisApiClient(this.args.apiKey, this.args.apiURL);
     try {
       logger.info("Starting SOOS CSA Analysis");
       logger.info(`Creating scan for project '${this.args.projectName}'...`);
 
-      const result = await soosApiClient.createScan({
+      const result = await soosAnalysisApiClient.createScan({
         clientId: this.args.clientId,
         projectName: this.args.projectName,
         commitHash: this.args.commitHash,
@@ -206,7 +206,7 @@ class SOOSCsaAnalysis {
       const formData = new FormData();
       formData.append("file", fileReadStream);
 
-      const containerFileUploadResponse = await soosApiClient.uploadManifestFiles({
+      const containerFileUploadResponse = await soosAnalysisApiClient.uploadManifestFiles({
         clientId: this.args.clientId,
         projectHash,
         branchHash,
@@ -224,7 +224,7 @@ class SOOSCsaAnalysis {
 
       logger.logLineSeparator();
       logger.info("Starting analysis scan");
-      await soosApiClient.startScan({
+      await soosAnalysisApiClient.startScan({
         clientId: this.args.clientId,
         projectHash,
         analysisId: analysisId,
@@ -234,7 +234,7 @@ class SOOSCsaAnalysis {
       );
     } catch (error) {
       if (projectHash && branchHash && analysisId)
-        await soosApiClient.updateScanStatus({
+        await soosAnalysisApiClient.updateScanStatus({
           clientId: this.args.clientId,
           projectHash,
           branchHash,
