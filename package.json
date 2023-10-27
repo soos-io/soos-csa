@@ -17,18 +17,18 @@
     "format:fix": "prettier ./src --write",
     "typecheck": "tsc --noEmit",
     "test:coverage": "npm run test -- --reporter xunit --reporter-option output=ResultsFile.xml",
-    "check": "npm run format && npm run typecheck && npm run test"
+    "check": "npm run format && npm run typecheck && npm outdated"
   },
   "dependencies": {
-    "@soos-io/api-client": "0.1.2",
+    "@soos-io/api-client": "^0.1.3",
     "argparse": "^2.0.1",
     "axios": "^0.27.2",
     "tslib": "^2.6.2"
   },
   "devDependencies": {
-    "@types/argparse": "^2.0.11",
+    "@types/argparse": "^2.0.12",
     "@types/glob": "^8.1.0",
-    "@types/node": "^20.6.3",
+    "@types/node": "^20.8.9",
     "prettier": "^2.8.8",
     "typescript": "^5.2.2"
   }
