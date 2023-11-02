@@ -121,7 +121,6 @@ class SOOSCsaAnalysis {
       help: "The name of the branch from the SCM System.",
       type: String,
       default: null,
-      nargs: "*",
       required: false,
     });
     parser.add_argument("--branchURI", {
@@ -167,6 +166,7 @@ class SOOSCsaAnalysis {
     try {
       logger.info("Starting SOOS CSA Analysis");
       logger.info(`Creating scan for project '${this.args.projectName}'...`);
+      logger.info(`Branch Name: ${this.args.branchName}`);
 
       const result = await soosAnalysisApiClient.createScan({
         clientId: this.args.clientId,
