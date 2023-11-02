@@ -84,25 +84,21 @@ class SOOSCsaAnalysis {
     parser.add_argument("--integrationName", {
       help: "Integration Name - Intended for internal use only.",
       type: String,
-      nargs: "*",
       required: false,
     });
     parser.add_argument("--integrationType", {
       help: "Integration Type - Intended for internal use only.",
       type: String,
-      nargs: "*",
       required: false,
     });
     parser.add_argument("--scriptVersion", {
       help: "Script Version - Intended for internal use only.",
       type: String,
-      nargs: "*",
       required: false,
     });
     parser.add_argument("--appVersion", {
       help: "App Version - Intended for internal use only.",
       type: String,
-      nargs: "*",
       required: false,
     });
     parser.add_argument("--onFailure", {
@@ -144,7 +140,6 @@ class SOOSCsaAnalysis {
       help: "Set Operating environment for information purposes only.",
       type: String,
       default: null,
-      nargs: "*",
       required: false,
     });
     parser.add_argument("--verbose", {
