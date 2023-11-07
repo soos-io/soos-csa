@@ -3,16 +3,11 @@ import * as FileSystem from "fs";
 import { exit } from "process";
 import { spawn } from "child_process";
 import FormData from "form-data";
-import {
-  FILE_ENCODING,
-  SOOS_CLIENT_ID_ENV_VAR,
-  SOOS_API_KEY_ENV_VAR,
-  DEFAULT_FILE_PATH,
-} from "./utils/Constants";
+import { CONSTANTS } from "./utils/Constants";
 import { LogLevel, Logger } from "./utils/Logger";
 import { ensureValue, getEnvVariable } from "./utils/Utilities";
 import SOOSAnalysisApiClient from "@soos-io/api-client/dist/api/SOOSAnalysisApiClient";
-import { ScanStatus, ScanType, soosLogger } from "@soos-io/api-client";
+import { ScanStatus, ScanType, soosLogger, SOOS_CONSTANTS } from "@soos-io/api-client";
 
 interface SOOSCsaAnalysisArgs {
   apiKey: string;
@@ -46,12 +41,12 @@ class SOOSCsaAnalysis {
     });
     parser.add_argument("--clientId", {
       help: "SOOS Client ID - get yours from https://app.soos.io/integrate/sca",
-      default: getEnvVariable(SOOS_CLIENT_ID_ENV_VAR),
+      default: getEnvVariable(CONSTANTS.SOOS.CLIENT_ID_ENV_VAR),
       required: false,
     });
     parser.add_argument("--apiKey", {
       help: "SOOS API Key - get yours from https://app.soos.io/integrate/sca",
-      default: getEnvVariable(SOOS_API_KEY_ENV_VAR),
+      default: getEnvVariable(CONSTANTS.SOOS.API_KEY_ENV_VAR),
       required: false,
     });
     parser.add_argument("--projectName", {
@@ -178,6 +173,8 @@ class SOOSCsaAnalysis {
         scriptVersion: null,
         contributingDeveloperAudit: undefined,
         scanType: ScanType.CSA,
+        toolName: CONSTANTS.CSA.TOOL_NAME,
+        toolVersion: null,
       });
 
       projectHash = result.projectHash;
@@ -194,8 +191,8 @@ class SOOSCsaAnalysis {
       await this.runSyft();
       logger.info("Container file generation completed successfully");
       logger.info("Uploading results");
-      const fileReadStream = FileSystem.createReadStream(DEFAULT_FILE_PATH, {
-        encoding: FILE_ENCODING,
+      const fileReadStream = FileSystem.createReadStream(CONSTANTS.FILES.DEFAULT_FILE_PATH, {
+        encoding: SOOS_CONSTANTS.FileUploads.Encoding,
       });
 
       const formData = new FormData();
@@ -225,7 +222,7 @@ class SOOSCsaAnalysis {
         analysisId: analysisId,
       });
       logger.info(
-        `Analysis scan started successfully, to see the results visit: ${result.scanStatusUrl}`
+        `Analysis scan started successfully, to see the results visit: ${result.scanUrl}`
       );
     } catch (error) {
       if (projectHash && branchHash && analysisId)
@@ -245,7 +242,11 @@ class SOOSCsaAnalysis {
 
   async runSyft(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const args = [this.args.targetToScan, `-o json=${DEFAULT_FILE_PATH}`, this.args.otherOptions];
+      const args = [
+        this.args.targetToScan,
+        `-o json=${CONSTANTS.FILES.DEFAULT_FILE_PATH}`,
+        this.args.otherOptions,
+      ];
       logger.info(`Running syft with args: ${args}`);
       const syftProcess = spawn("syft", args, {
         shell: true,
