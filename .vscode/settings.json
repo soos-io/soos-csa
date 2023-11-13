@@ -5,7 +5,10 @@
     "prettier.configPath": "./.prettierrc",
     "cSpell.words": [
       "Levelkey",
-      "SOOS"
+      "nargs",
+      "SOOS",
+      "SOOSCSA",
+      "Syft"
     ],
     "sarif-viewer.connectToGithubCodeScanning": "off",
   }
