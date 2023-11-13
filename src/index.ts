@@ -302,7 +302,9 @@ class SOOSCSAAnalysis {
         soosLogger.error("Failing the build.");
         process.exit(1);
       }
-      soosLogger.info(`Waiting ${CONSTANTS.STATUS.DELAY_TIME} seconds before trying again...`);
+      soosLogger.info(
+        `Waiting ${CONSTANTS.STATUS.DELAY_TIME / 1000} seconds before trying again...`
+      );
       await sleep(CONSTANTS.STATUS.DELAY_TIME);
       return this.waitForScanToFinish({ apiClient, scanStatusUrl, attempt: attempt++ });
     }
