@@ -27,6 +27,30 @@ docker run -it --rm \
   <CONTAINER_NAME>:<TAG_NAME>
 ```
 
+## Parameters
+
+| Argument | Default | Description |
+| --- | --- | --- |
+| `--apiKey` | None | SOOS API Key - get yours from https://app.soos.io/integrate/containers |
+| `--apiURL` | https://api.soos.io/api/ | SOOS API URL - Intended for internal use only, do not modify. |
+| `--appVersion` | None | App Version - Intended for internal use only. |
+| `--branchName` | null | The name of the branch from the SCM System. |
+| `--branchURI` | null | The URI to the branch from the SCM System. |
+| `--buildURI` | null | URI to CI build info. |
+| `--buildVersion` | null | Version of application build artifacts. |
+| `--clientId` | None | SOOS Client ID - get yours from https://app.soos.io/integrate/containers |
+| `--commitHash` | null | The commit hash value from the SCM System. |
+| `--integrationName` | null | Integration Name - Intended for internal use only. |
+| `--integrationType` | null | Integration Type - Intended for internal use only. |
+| `--logLevel` | INFO | Minimum level to show logs: PASS, IGNORE, INFO, WARN, or FAIL. |
+| `--onFailure` | continue_on_failure | Action to perform when the scan fails. Options: fail_the_build, continue_on_failure. |
+| `--operatingEnvironment` | null | Set Operating environment for information purposes only. |
+| `--otherOptions` | None | Other Options to pass to syft. |
+| `--projectName` | None | Project Name - this is what will be displayed in the SOOS app. |
+| `--scriptVersion` | null | N/A |
+| `--verbose` | false | Enable verbose logging. |
+| `targetToScan` | N/A | The target to scan. Should be a docker image name or a path to a directory containing a Dockerfile. |
+
 ## Scanning Private Images with Authentication
 To scan an image from a private registry, follow these steps:
 
