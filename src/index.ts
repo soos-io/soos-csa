@@ -6,7 +6,7 @@ import FormData from "form-data";
 import { CONSTANTS } from "./utils/Constants";
 import {
   ensureEnumValue,
-  ensureValue,
+  ensureNonEmptyValue,
   getEnvVariable,
   obfuscateProperties,
   sleep,
@@ -51,6 +51,9 @@ class SOOSCSAAnalysis {
       help: "SOOS API URL - Intended for internal use only, do not modify.",
       default: "https://api.soos.io/api/",
       required: false,
+      type: (value: string) => {
+        return ensureNonEmptyValue(value, "apiURL");
+      },
     });
 
     parser.add_argument("--appVersion", {
@@ -138,6 +141,9 @@ class SOOSCSAAnalysis {
     parser.add_argument("--projectName", {
       help: "Project Name - this is what will be displayed in the SOOS app.",
       required: true,
+      type: (value: string) => {
+        return ensureNonEmptyValue(value, "projectName");
+      },
     });
 
     parser.add_argument("--scriptVersion", {
@@ -348,8 +354,8 @@ class SOOSCSAAnalysis {
           2
         )
       );
-      ensureValue(args.clientId, "clientId");
-      ensureValue(args.apiKey, "apiKey");
+      ensureNonEmptyValue(args.clientId, "clientId");
+      ensureNonEmptyValue(args.apiKey, "apiKey");
       const csaAnalysis = new SOOSCSAAnalysis(args);
       await csaAnalysis.runAnalysis();
     } catch (error) {
