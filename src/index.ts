@@ -1,4 +1,5 @@
 import { ArgumentParser } from "argparse";
+import { version } from "../package.json";
 import * as FileSystem from "fs";
 import { exit } from "process";
 import { spawn } from "child_process";
@@ -9,9 +10,7 @@ import {
   ensureNonEmptyValue,
   getEnvVariable,
   obfuscateProperties,
-  sleep,
 } from "@soos-io/api-client/dist/utilities";
-import SOOSAnalysisApiClient from "@soos-io/api-client/dist/api/SOOSAnalysisApiClient";
 import {
   ScanStatus,
   ScanType,
@@ -121,7 +120,7 @@ class SOOSCSAAnalysis {
       type: (value: string) => {
         return ensureEnumValue(IntegrationName, value);
       },
-      default: IntegrationName.Script,
+      default: IntegrationName.SoosCsa,
     });
 
     parser.add_argument("--integrationType", {
@@ -178,6 +177,7 @@ class SOOSCSAAnalysis {
 
     parser.add_argument("--scriptVersion", {
       required: false,
+      default: version,
     });
 
     parser.add_argument("--verbose", {
@@ -267,6 +267,7 @@ class SOOSCSAAnalysis {
       const scanStatus = await analysisService.waitForScanToFinish({
         scanStatusUrl: result.scanStatusUrl,
         scanUrl: result.scanUrl,
+        scanType: ScanType.CSA,
       });
 
       if (this.args.outputFormat !== undefined) {
@@ -338,54 +339,6 @@ class SOOSCSAAnalysis {
         }
       });
     });
-  }
-
-  async waitForScanToFinish({
-    apiClient,
-    scanStatusUrl,
-    attempt,
-  }: {
-    apiClient: SOOSAnalysisApiClient;
-    scanStatusUrl: string;
-    attempt: number;
-  }): Promise<void> {
-    const status = await apiClient.getScanStatus({ scanStatusUrl });
-
-    if (!status.isComplete) {
-      soosLogger.info(`Scan status: ${status.status}...`);
-      if (attempt >= CONSTANTS.STATUS.MAX_ATTEMPTS) {
-        soosLogger.error("Max attempts reached fetching scan status.");
-        soosLogger.error("Failing the build.");
-        process.exit(1);
-      }
-      soosLogger.info(
-        `Waiting ${CONSTANTS.STATUS.DELAY_TIME / 1000} seconds before trying again...`
-      );
-      await sleep(CONSTANTS.STATUS.DELAY_TIME);
-      return this.waitForScanToFinish({ apiClient, scanStatusUrl, attempt: attempt++ });
-    }
-
-    soosLogger.info(`Scan status is complete: ${status.status}`);
-
-    if (status.status === ScanStatus.FailedWithIssues) {
-      soosLogger.info("Analysis complete - Failures reported");
-      soosLogger.info("Failing the build.");
-      process.exit(1);
-    } else if (status.status === ScanStatus.Incomplete) {
-      soosLogger.info(
-        "Analysis Incomplete. It may have been cancelled or superseded by another scan."
-      );
-      soosLogger.info("Failing the build.");
-      process.exit(1);
-    } else if (status.status === ScanStatus.Error) {
-      soosLogger.info("Analysis Error.");
-      soosLogger.info("Failing the build.");
-      process.exit(1);
-    } else if (scanStatusUrl === "finished") {
-      return;
-    } else {
-      process.exit(0);
-    }
   }
 
   static async createAndRun(): Promise<void> {
