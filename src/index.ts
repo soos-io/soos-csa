@@ -10,6 +10,7 @@ import {
   ensureNonEmptyValue,
   getEnvVariable,
   obfuscateProperties,
+  verifyScanStatus,
 } from "@soos-io/api-client/dist/utilities";
 import {
   ScanStatus,
@@ -19,6 +20,7 @@ import {
   LogLevel,
   IntegrationName,
   OutputFormat,
+  IntegrationType,
 } from "@soos-io/api-client";
 import { OnFailure } from "./utils/enums";
 import AnalysisService from "@soos-io/api-client/dist/services/AnalysisService";
@@ -31,11 +33,11 @@ interface SOOSCSAAnalysisArgs {
   branchUri: string;
   buildUri: string;
   buildVersion: string;
-  checkoutDir: string;
+  workingDirectory: string;
   clientId: string;
   commitHash: string;
   integrationName: IntegrationName;
-  integrationType: string;
+  integrationType: IntegrationType;
   logLevel: LogLevel;
   onFailure: string;
   operatingEnvironment: string;
@@ -95,7 +97,7 @@ class SOOSCSAAnalysis {
       required: false,
     });
 
-    parser.add_argument("--checkoutDir", {
+    parser.add_argument("--workingDirectory", {
       help: "Directory where the SARIF file will be created, used by Github Actions.",
       required: false,
       nargs: "*",
@@ -126,7 +128,10 @@ class SOOSCSAAnalysis {
     parser.add_argument("--integrationType", {
       help: "Integration Type - Intended for internal use only.",
       required: false,
-      default: CONSTANTS.SOOS.DEFAULT_INTEGRATION_TYPE,
+      type: (value: string) => {
+        return ensureEnumValue(IntegrationType, value);
+      },
+      default: IntegrationType.Script,
     });
 
     parser.add_argument("--logLevel", {
@@ -279,27 +284,15 @@ class SOOSCSAAnalysis {
           scanType: ScanType.CSA,
           analysisId: result.analysisId,
           outputFormat: this.args.outputFormat,
-          sourceCodePath: this.args.checkoutDir,
-          workingDirectory: this.args.checkoutDir,
+          sourceCodePath: this.args.workingDirectory,
+          workingDirectory: this.args.workingDirectory,
         });
       }
 
-      if (this.args.onFailure === OnFailure.Fail) {
-        if (scanStatus === ScanStatus.FailedWithIssues) {
-          soosLogger.info("Analysis complete - Failures reported");
-          soosLogger.info("Failing the build.");
-          process.exit(1);
-        } else if (scanStatus === ScanStatus.Incomplete) {
-          soosLogger.info(
-            "Analysis Incomplete. It may have been cancelled or superseded by another scan."
-          );
-          soosLogger.info("Failing the build.");
-          process.exit(1);
-        } else if (scanStatus === ScanStatus.Error) {
-          soosLogger.info("Analysis Error.");
-          soosLogger.info("Failing the build.");
-          process.exit(1);
-        }
+      const exitWithError = verifyScanStatus(scanStatus);
+
+      if (this.args.onFailure === OnFailure.Fail && exitWithError) {
+        exit(1);
       }
     } catch (error) {
       if (projectHash && branchHash && analysisId)
