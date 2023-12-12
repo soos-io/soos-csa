@@ -97,13 +97,6 @@ class SOOSCSAAnalysis {
       required: false,
     });
 
-    parser.add_argument("--workingDirectory", {
-      help: "Directory where the SARIF file will be created, used by Github Actions.",
-      required: false,
-      nargs: "*",
-      default: process.cwd(),
-    });
-
     parser.add_argument("--clientId", {
       help: "SOOS Client ID - get yours from https://app.soos.io/integrate/containers",
       default: getEnvVariable(CONSTANTS.SOOS.CLIENT_ID_ENV_VAR),
@@ -190,6 +183,13 @@ class SOOSCSAAnalysis {
       action: "store_true",
       default: false,
       required: false,
+    });
+
+    parser.add_argument("--workingDirectory", {
+      help: "Directory where the SARIF file will be created, used by Github Actions.",
+      required: false,
+      nargs: "*",
+      default: process.cwd(),
     });
 
     parser.add_argument("targetToScan", {
