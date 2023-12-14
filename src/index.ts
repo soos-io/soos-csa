@@ -9,8 +9,8 @@ import {
   ensureEnumValue,
   ensureNonEmptyValue,
   getEnvVariable,
+  getExitCodeFromStatus,
   obfuscateProperties,
-  verifyScanStatus,
 } from "@soos-io/api-client/dist/utilities";
 import {
   ScanStatus,
@@ -249,6 +249,7 @@ class SOOSCSAAnalysis {
           branchHash,
           analysisId,
           manifestFiles: formData,
+          hasMoreThanMaximumManifests: false,
         });
 
       soosLogger.info(
@@ -289,11 +290,11 @@ class SOOSCSAAnalysis {
         });
       }
 
-      const exitWithError = verifyScanStatus(scanStatus);
-
-      if (this.args.onFailure === OnFailure.Fail && exitWithError) {
-        exit(1);
+      const exitCode = getExitCodeFromStatus(scanStatus);
+      if (exitCode > 0 && this.args.onFailure === OnFailure.Fail) {
+        soosLogger.warn("Failing the build.");
       }
+      exit(exitCode);
     } catch (error) {
       if (projectHash && branchHash && analysisId)
         await analysisService.analysisApiClient.updateScanStatus({
