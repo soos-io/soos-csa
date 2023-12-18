@@ -14,41 +14,21 @@ import {
   ScanType,
   soosLogger,
   SOOS_CONSTANTS,
-  LogLevel,
   IntegrationName,
   OutputFormat,
   IntegrationType,
-  OnFailure,
 } from "@soos-io/api-client";
 import AnalysisService from "@soos-io/api-client/dist/services/AnalysisService";
 import { SOOS_CSA_CONSTANTS } from "./constants";
-import AnalysisArgumentParser from "@soos-io/api-client/dist/services/AnalysisArgumentParser";
+import AnalysisArgumentParser, {
+  IBaseScanArguments,
+} from "@soos-io/api-client/dist/services/AnalysisArgumentParser";
 
-interface SOOSCSAAnalysisArgs {
-  apiKey: string;
-  apiURL: string;
-  appVersion: string;
-  branchName: string;
-  branchUri: string;
-  buildUri: string;
-  buildVersion: string;
-  workingDirectory: string;
-  clientId: string;
-  commitHash: string;
-  contributingDeveloperId: string;
-  contributingDeveloperSource: string;
-  contributingDeveloperSourceName: string;
-  integrationName: IntegrationName;
-  integrationType: IntegrationType;
-  logLevel: LogLevel;
-  onFailure: OnFailure;
-  operatingEnvironment: string;
+interface SOOSCSAAnalysisArgs extends IBaseScanArguments {
   outputFormat: OutputFormat;
   otherOptions: string;
-  projectName: string;
-  scriptVersion: string;
   targetToScan: string;
-  verbose: boolean;
+  workingDirectory: string;
 }
 class SOOSCSAAnalysis {
   constructor(private args: SOOSCSAAnalysisArgs) {}
@@ -60,15 +40,6 @@ class SOOSCSAAnalysis {
       IntegrationType.Script,
       version,
     );
-
-    analysisArgumentParser.argumentParser.add_argument("--onFailure", {
-      help: "Action to perform when the scan fails. Options: fail_the_build, continue_on_failure.",
-      default: OnFailure.Continue,
-      required: false,
-      type: (value: string) => {
-        return ensureEnumValue(OnFailure, value);
-      },
-    });
 
     analysisArgumentParser.argumentParser.add_argument("--outputFormat", {
       help: "Output format for vulnerabilities: only the value SARIF is available at the moment",
@@ -115,8 +86,8 @@ class SOOSCSAAnalysis {
         commitHash: this.args.commitHash,
         branchName: this.args.branchName,
         buildVersion: this.args.buildVersion,
-        buildUri: this.args.buildUri,
-        branchUri: this.args.branchUri,
+        buildUri: this.args.buildURI,
+        branchUri: this.args.branchURI,
         integrationType: this.args.integrationType,
         operatingEnvironment: this.args.operatingEnvironment,
         integrationName: this.args.integrationName,
