@@ -1,15 +1,12 @@
-import { ArgumentParser } from "argparse";
 import { version } from "../package.json";
 import * as FileSystem from "fs";
 import { exit } from "process";
 import { spawn } from "child_process";
 import FormData from "form-data";
-import { CONSTANTS } from "./utils/Constants";
 import {
   ensureEnumValue,
   ensureNonEmptyValue,
-  getEnvVariable,
-  getExitCodeFromStatus,
+  getAnalysisExitCode,
   obfuscateProperties,
 } from "@soos-io/api-client/dist/utilities";
 import {
@@ -21,9 +18,11 @@ import {
   IntegrationName,
   OutputFormat,
   IntegrationType,
+  OnFailure,
 } from "@soos-io/api-client";
-import { OnFailure } from "./utils/enums";
 import AnalysisService from "@soos-io/api-client/dist/services/AnalysisService";
+import { SOOS_CSA_CONSTANTS } from "./constants";
+import AnalysisArgumentParser from "@soos-io/api-client/dist/services/AnalysisArgumentParser";
 
 interface SOOSCSAAnalysisArgs {
   apiKey: string;
@@ -36,10 +35,13 @@ interface SOOSCSAAnalysisArgs {
   workingDirectory: string;
   clientId: string;
   commitHash: string;
+  contributingDeveloperId: string;
+  contributingDeveloperSource: string;
+  contributingDeveloperSourceName: string;
   integrationName: IntegrationName;
   integrationType: IntegrationType;
   logLevel: LogLevel;
-  onFailure: string;
+  onFailure: OnFailure;
   operatingEnvironment: string;
   outputFormat: OutputFormat;
   otherOptions: string;
@@ -51,92 +53,15 @@ interface SOOSCSAAnalysisArgs {
 class SOOSCSAAnalysis {
   constructor(private args: SOOSCSAAnalysisArgs) {}
   static parseArgs(): SOOSCSAAnalysisArgs {
-    const parser = new ArgumentParser({ description: "SOOS Csa" });
+    const analysisArgumentParser = AnalysisArgumentParser.create(ScanType.SAST);
 
-    parser.add_argument("--apiKey", {
-      help: "SOOS API Key - get yours from https://app.soos.io/integrate/containers",
-      default: getEnvVariable(CONSTANTS.SOOS.API_KEY_ENV_VAR),
-      required: false,
-    });
+    analysisArgumentParser.addBaseScanArguments(
+      IntegrationName.SoosCsa,
+      IntegrationType.Script,
+      version,
+    );
 
-    parser.add_argument("--apiURL", {
-      help: "SOOS API URL - Intended for internal use only, do not modify.",
-      default: "https://api.soos.io/api/",
-      required: false,
-      type: (value: string) => {
-        return ensureNonEmptyValue(value, "apiURL");
-      },
-    });
-
-    parser.add_argument("--appVersion", {
-      help: "App Version - Intended for internal use only.",
-      required: false,
-    });
-
-    parser.add_argument("--branchName", {
-      help: "The name of the branch from the SCM System.",
-      default: null,
-      required: false,
-    });
-
-    parser.add_argument("--branchURI", {
-      help: "The URI to the branch from the SCM System.",
-      default: null,
-      required: false,
-    });
-
-    parser.add_argument("--buildURI", {
-      help: "URI to CI build info.",
-      default: null,
-      required: false,
-    });
-
-    parser.add_argument("--buildVersion", {
-      help: "Version of application build artifacts.",
-      default: null,
-      required: false,
-    });
-
-    parser.add_argument("--clientId", {
-      help: "SOOS Client ID - get yours from https://app.soos.io/integrate/containers",
-      default: getEnvVariable(CONSTANTS.SOOS.CLIENT_ID_ENV_VAR),
-      required: false,
-    });
-
-    parser.add_argument("--commitHash", {
-      help: "The commit hash value from the SCM System.",
-      default: null,
-      required: false,
-    });
-
-    parser.add_argument("--integrationName", {
-      help: "Integration Name - Intended for internal use only.",
-      required: false,
-      type: (value: string) => {
-        return ensureEnumValue(IntegrationName, value);
-      },
-      default: IntegrationName.SoosCsa,
-    });
-
-    parser.add_argument("--integrationType", {
-      help: "Integration Type - Intended for internal use only.",
-      required: false,
-      type: (value: string) => {
-        return ensureEnumValue(IntegrationType, value);
-      },
-      default: IntegrationType.Script,
-    });
-
-    parser.add_argument("--logLevel", {
-      help: "Minimum level to show logs: PASS, IGNORE, INFO, WARN or FAIL.",
-      default: LogLevel.INFO,
-      required: false,
-      type: (value: string) => {
-        return ensureEnumValue(LogLevel, value);
-      },
-    });
-
-    parser.add_argument("--onFailure", {
+    analysisArgumentParser.argumentParser.add_argument("--onFailure", {
       help: "Action to perform when the scan fails. Options: fail_the_build, continue_on_failure.",
       default: OnFailure.Continue,
       required: false,
@@ -145,13 +70,7 @@ class SOOSCSAAnalysis {
       },
     });
 
-    parser.add_argument("--operatingEnvironment", {
-      help: "Set Operating environment for information purposes only.",
-      default: null,
-      required: false,
-    });
-
-    parser.add_argument("--outputFormat", {
+    analysisArgumentParser.argumentParser.add_argument("--outputFormat", {
       help: "Output format for vulnerabilities: only the value SARIF is available at the moment",
       required: false,
       type: (value: string) => {
@@ -159,55 +78,38 @@ class SOOSCSAAnalysis {
       },
     });
 
-    parser.add_argument("--otherOptions", {
+    analysisArgumentParser.argumentParser.add_argument("--otherOptions", {
       help: "Other Options to pass to syft.",
       required: false,
       nargs: "*",
     });
 
-    parser.add_argument("--projectName", {
-      help: "Project Name - this is what will be displayed in the SOOS app.",
-      required: true,
-      type: (value: string) => {
-        return ensureNonEmptyValue(value, "projectName");
-      },
-    });
-
-    parser.add_argument("--scriptVersion", {
-      required: false,
-      default: version,
-    });
-
-    parser.add_argument("--verbose", {
-      help: "Enable verbose logging.",
-      action: "store_true",
-      default: false,
-      required: false,
-    });
-
-    parser.add_argument("--workingDirectory", {
+    analysisArgumentParser.argumentParser.add_argument("--workingDirectory", {
       help: "Directory where the SARIF file will be created, used by Github Actions.",
       required: false,
       nargs: "*",
       default: process.cwd(),
     });
 
-    parser.add_argument("targetToScan", {
+    analysisArgumentParser.argumentParser.add_argument("targetToScan", {
       help: "The target to scan. Should be a docker image name or a path to a directory containing a Dockerfile",
     });
 
     soosLogger.info("Parsing arguments");
-    return parser.parse_args();
+    return analysisArgumentParser.parseArguments();
   }
 
   async runAnalysis(): Promise<void> {
+    const scanType = ScanType.CSA;
+    const soosAnalysisService = AnalysisService.create(this.args.apiKey, this.args.apiURL);
+
     let projectHash: string | undefined;
     let branchHash: string | undefined;
     let analysisId: string | undefined;
+    let scanStatusUrl: string | undefined;
 
-    const analysisService = AnalysisService.create(this.args.apiKey, this.args.apiURL);
     try {
-      const result = await analysisService.setupScan({
+      const result = await soosAnalysisService.setupScan({
         clientId: this.args.clientId,
         projectName: this.args.projectName,
         commitHash: this.args.commitHash,
@@ -220,14 +122,26 @@ class SOOSCSAAnalysis {
         integrationName: this.args.integrationName,
         appVersion: this.args.appVersion,
         scriptVersion: this.args.scriptVersion,
-        contributingDeveloperAudit: [],
-        scanType: ScanType.CSA,
-        toolName: CONSTANTS.CSA.TOOL_NAME,
+        contributingDeveloperAudit:
+          !this.args.contributingDeveloperId ||
+          !this.args.contributingDeveloperSource ||
+          !this.args.contributingDeveloperSourceName
+            ? []
+            : [
+                {
+                  contributingDeveloperId: this.args.contributingDeveloperId,
+                  source: this.args.contributingDeveloperSource,
+                  sourceName: this.args.contributingDeveloperSourceName,
+                },
+              ],
+        scanType,
+        toolName: SOOS_CSA_CONSTANTS.ToolName,
       });
 
       projectHash = result.projectHash;
       branchHash = result.branchHash;
       analysisId = result.analysisId;
+      scanStatusUrl = result.scanStatusUrl;
 
       soosLogger.logLineSeparator();
 
@@ -235,7 +149,7 @@ class SOOSCSAAnalysis {
       await this.runSyft();
       soosLogger.info("Container file generation completed successfully");
       soosLogger.info("Uploading results");
-      const fileReadStream = FileSystem.createReadStream(CONSTANTS.FILES.DEFAULT_FILE_PATH, {
+      const fileReadStream = FileSystem.createReadStream(SOOS_CSA_CONSTANTS.ResultsFilePath, {
         encoding: SOOS_CONSTANTS.FileUploads.Encoding,
       });
 
@@ -243,7 +157,7 @@ class SOOSCSAAnalysis {
       formData.append("file", fileReadStream);
 
       const containerFileUploadResponse =
-        await analysisService.analysisApiClient.uploadManifestFiles({
+        await soosAnalysisService.analysisApiClient.uploadManifestFiles({
           clientId: this.args.clientId,
           projectHash,
           branchHash,
@@ -257,32 +171,32 @@ class SOOSCSAAnalysis {
         `  ${containerFileUploadResponse.message} \n`,
         containerFileUploadResponse.manifests
           ?.map((m) => `  ${m.name}: ${m.statusMessage}`)
-          .join("\n")
+          .join("\n"),
       );
 
       soosLogger.logLineSeparator();
 
-      await analysisService.startScan({
+      await soosAnalysisService.startScan({
         clientId: this.args.clientId,
         projectHash,
         analysisId: analysisId,
-        scanType: ScanType.CSA,
+        scanType,
         scanUrl: result.scanUrl,
       });
 
-      const scanStatus = await analysisService.waitForScanToFinish({
-        scanStatusUrl: result.scanStatusUrl,
+      const scanStatus = await soosAnalysisService.waitForScanToFinish({
+        scanStatusUrl,
         scanUrl: result.scanUrl,
-        scanType: ScanType.CSA,
+        scanType,
       });
 
       if (this.args.outputFormat !== undefined) {
-        await analysisService.generateFormattedOutput({
+        await soosAnalysisService.generateFormattedOutput({
           clientId: this.args.clientId,
           projectHash: result.projectHash,
           projectName: this.args.projectName,
           branchHash: result.branchHash,
-          scanType: ScanType.CSA,
+          scanType,
           analysisId: result.analysisId,
           outputFormat: this.args.outputFormat,
           sourceCodePath: this.args.workingDirectory,
@@ -290,18 +204,20 @@ class SOOSCSAAnalysis {
         });
       }
 
-      const exitCode = getExitCodeFromStatus(scanStatus);
-      if (exitCode > 0 && this.args.onFailure === OnFailure.Fail) {
-        soosLogger.warn("Failing the build.");
-      }
+      const exitCode = getAnalysisExitCode(
+        scanStatus,
+        this.args.integrationName,
+        this.args.onFailure,
+      );
+      soosLogger.debug(`Exiting with code ${exitCode}`);
       exit(exitCode);
     } catch (error) {
       if (projectHash && branchHash && analysisId)
-        await analysisService.analysisApiClient.updateScanStatus({
+        await soosAnalysisService.analysisApiClient.updateScanStatus({
           clientId: this.args.clientId,
           projectHash,
           branchHash,
-          scanType: ScanType.CSA,
+          scanType,
           scanId: analysisId,
           status: ScanStatus.Error,
           message: `Error while performing scan.`,
@@ -315,7 +231,7 @@ class SOOSCSAAnalysis {
     return new Promise((resolve, reject) => {
       const args = [
         this.args.targetToScan,
-        `-o json=${CONSTANTS.FILES.DEFAULT_FILE_PATH}`,
+        `-o json=${SOOS_CSA_CONSTANTS.ResultsFilePath}`,
         this.args.otherOptions,
       ];
       soosLogger.info(`Running syft with args: ${args}`);
@@ -347,13 +263,14 @@ class SOOSCSAAnalysis {
         JSON.stringify(
           obfuscateProperties(args as unknown as Record<string, unknown>, ["apiKey"]),
           null,
-          2
-        )
+          2,
+        ),
       );
       ensureNonEmptyValue(args.clientId, "clientId");
       ensureNonEmptyValue(args.apiKey, "apiKey");
-      const csaAnalysis = new SOOSCSAAnalysis(args);
-      await csaAnalysis.runAnalysis();
+      soosLogger.logLineSeparator();
+      const soosCSAAnalysis = new SOOSCSAAnalysis(args);
+      await soosCSAAnalysis.runAnalysis();
     } catch (error) {
       soosLogger.error(`Error on createAndRun: ${error}`);
       exit(1);
