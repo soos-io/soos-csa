@@ -170,7 +170,6 @@ class SOOSCSAAnalysis {
           scanType,
           analysisId: result.analysisId,
           outputFormat: this.args.outputFormat,
-          sourceCodePath: this.args.workingDirectory,
           workingDirectory: this.args.workingDirectory,
         });
       }
