@@ -20,6 +20,14 @@
     "check": "npm run format && npm run typecheck && npm outdated",
     "patch-api-client": "npm version patch --no-git-tag-version && npm run setup:clean && npm install @soos-io/api-client@latest --save-exact && npm install && npm run check"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soos-io/soos-csa.git"
+  },
+  "bugs": {
+    "url": "https://github.com/soos-io/soos-csa/issues"
+  },
+  "homepage": "https://github.com/soos-io/soos-csa#readme",
   "dependencies": {
     "@soos-io/api-client": "0.2.22",
     "argparse": "^2.0.1",
