@@ -38,7 +38,7 @@ docker run -it --rm \
 | `--buildVersion` |  | Version of application build artifacts. |
 | `--clientId` |  | SOOS Client ID - get yours from [SOOS Integration](https://app.soos.io/integrate/containers). Uses `SOOS_API_CLIENT` env value if present. |
 | `--commitHash` |  | The commit hash value from the SCM System. |
-| `--logLevel` | `INFO` | Minimum level to show logs: PASS, IGNORE, INFO, WARN, or FAIL. |
+| `--logLevel` |  | Minimum level to show logs: DEBUG INFO, WARN, FAIL, ERROR. |
 | `--onFailure` | `continue_on_failure` | Action to perform when the scan fails. Options: fail_the_build, continue_on_failure. |
 | `--operatingEnvironment` |  | Set Operating environment for information purposes only. |
 | `--otherOptions` |  | Other Options to pass to syft. |
