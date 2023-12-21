@@ -5,7 +5,6 @@ import { spawn } from "child_process";
 import FormData from "form-data";
 import {
   ensureEnumValue,
-  ensureNonEmptyValue,
   getAnalysisExitCode,
   obfuscateProperties,
 } from "@soos-io/api-client/dist/utilities";
@@ -236,8 +235,6 @@ class SOOSCSAAnalysis {
           2,
         ),
       );
-      ensureNonEmptyValue(args.clientId, "clientId");
-      ensureNonEmptyValue(args.apiKey, "apiKey");
       soosLogger.logLineSeparator();
       const soosCSAAnalysis = new SOOSCSAAnalysis(args);
       await soosCSAAnalysis.runAnalysis();

@@ -1,10 +1,10 @@
 {
   "name": "soos-csa",
-  "description": "",
+  "description": "SOOS Container Vulnerability Scanning",
   "author": "SOOS",
   "publisher": "SOOS",
   "license": "MIT",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "main": "dist/index.js",
   "scripts": {
     "setup:install": "npm install",
