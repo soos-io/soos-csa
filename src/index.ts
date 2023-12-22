@@ -178,7 +178,7 @@ class SOOSCSAAnalysis {
         this.args.integrationName,
         this.args.onFailure,
       );
-      soosLogger.debug(`Exiting with code ${exitCode}`);
+      soosLogger.always(`exit ${exitCode}`);
       exit(exitCode);
     } catch (error) {
       if (projectHash && branchHash && analysisId)
@@ -192,6 +192,7 @@ class SOOSCSAAnalysis {
           message: `Error while performing scan.`,
         });
       soosLogger.error(error);
+      soosLogger.always("exit 1");
       exit(1);
     }
   }
