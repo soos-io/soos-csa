@@ -32,7 +32,7 @@ interface SOOSCSAAnalysisArgs extends IBaseScanArguments {
 class SOOSCSAAnalysis {
   constructor(private args: SOOSCSAAnalysisArgs) {}
   static parseArgs(): SOOSCSAAnalysisArgs {
-    const analysisArgumentParser = AnalysisArgumentParser.create(ScanType.SAST);
+    const analysisArgumentParser = AnalysisArgumentParser.create(ScanType.CSA);
 
     analysisArgumentParser.addBaseScanArguments(
       IntegrationName.SoosCsa,
