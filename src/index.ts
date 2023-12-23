@@ -241,6 +241,7 @@ class SOOSCSAAnalysis {
       await soosCSAAnalysis.runAnalysis();
     } catch (error) {
       soosLogger.error(`Error on createAndRun: ${error}`);
+      soosLogger.always("exit 1");
       exit(1);
     }
   }
