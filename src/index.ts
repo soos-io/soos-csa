@@ -5,7 +5,7 @@ import { spawn } from "child_process";
 import FormData from "form-data";
 import {
   ensureEnumValue,
-  getAnalysisExitCode,
+  getAnalysisExitCodeWithMessage,
   obfuscateProperties,
 } from "@soos-io/api-client/dist/utilities";
 import {
@@ -173,13 +173,13 @@ class SOOSCSAAnalysis {
         });
       }
 
-      const exitCode = getAnalysisExitCode(
+      const exitCodeWithMessage = getAnalysisExitCodeWithMessage(
         scanStatus,
         this.args.integrationName,
         this.args.onFailure,
       );
-      soosLogger.always(`exit ${exitCode}`);
-      exit(exitCode);
+      soosLogger.always(`${exitCodeWithMessage.message} - exit ${exitCodeWithMessage.exitCode}`);
+      exit(exitCodeWithMessage.exitCode);
     } catch (error) {
       if (projectHash && branchHash && analysisId)
         await soosAnalysisService.analysisApiClient.updateScanStatus({
@@ -192,7 +192,7 @@ class SOOSCSAAnalysis {
           message: `Error while performing scan.`,
         });
       soosLogger.error(error);
-      soosLogger.always("exit 1");
+      soosLogger.always(`${error} - exit 1`);
       exit(1);
     }
   }
@@ -241,7 +241,7 @@ class SOOSCSAAnalysis {
       await soosCSAAnalysis.runAnalysis();
     } catch (error) {
       soosLogger.error(`Error on createAndRun: ${error}`);
-      soosLogger.always("exit 1");
+      soosLogger.always(`Error on createAndRun: ${error} - exit 1`);
       exit(1);
     }
   }
