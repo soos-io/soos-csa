@@ -201,7 +201,7 @@ class SOOSCSAAnalysis {
     return new Promise((resolve, reject) => {
       const args = [
         this.args.targetToScan,
-        `-o json=${SOOS_CSA_CONSTANTS.ResultsFilePath}`,
+        `-o syft-json=${SOOS_CSA_CONSTANTS.ResultsFilePath}`,
         this.args.otherOptions,
       ];
       soosLogger.info(`Running syft with args: ${args}`);
