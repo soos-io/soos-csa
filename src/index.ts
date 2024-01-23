@@ -32,13 +32,14 @@ interface SOOSCSAAnalysisArgs extends IBaseScanArguments {
 class SOOSCSAAnalysis {
   constructor(private args: SOOSCSAAnalysisArgs) {}
   static parseArgs(): SOOSCSAAnalysisArgs {
-    const analysisArgumentParser = AnalysisArgumentParser.create(ScanType.CSA);
-
-    analysisArgumentParser.addBaseScanArguments(
+    const analysisArgumentParser = AnalysisArgumentParser.create(
       IntegrationName.SoosCsa,
       IntegrationType.Script,
+      ScanType.CSA,
       version,
     );
+
+    analysisArgumentParser.addBaseScanArguments();
 
     analysisArgumentParser.argumentParser.add_argument("--outputFormat", {
       help: "Output format for vulnerabilities: only the value SARIF is available at the moment",
