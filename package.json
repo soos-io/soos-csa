@@ -19,12 +19,25 @@
     "test:coverage": "npm run test -- --reporter xunit --reporter-option output=ResultsFile.xml",
     "check": "npm run format && npm run typecheck && npm outdated",
     "link:soos-api-client": "npm link @soos-io/api-client && npm run build && npm link",
-    "patch-api-client": "npm version patch --no-git-tag-version && npm run setup:clean && npm install @soos-io/api-client@latest --save-exact && npm install && npm run check"
+    "patch": "npm version patch --no-git-tag-version",
+    "patch-api-client": "npm run patch && npm run setup:clean && npm install @soos-io/api-client@latest --save-exact && npm install && npm run check"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/soos-io/soos-csa.git"
   },
+  "keywords": [
+    "@soos-io",
+    "csa",
+    "containers",
+    "soos api",
+    "vulnerabilities",
+    "licenses",
+    "soos",
+    "open source",
+    "oss",
+    "docker"
+  ],
   "bugs": {
     "url": "https://github.com/soos-io/soos-csa/issues"
   },
