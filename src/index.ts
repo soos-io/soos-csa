@@ -212,7 +212,7 @@ class SOOSCSAAnalysis {
       });
 
       syftProcess.on("close", (code) => {
-        soosLogger.verboseDebug(`syft: child process exited with code ${code}`);
+        soosLogger.debug(`syft: child process exited with code ${code}`);
         if (code === 0) {
           resolve();
         } else {
@@ -230,7 +230,7 @@ class SOOSCSAAnalysis {
       soosLogger.setMinLogLevel(args.logLevel);
       soosLogger.setVerbose(args.verbose);
       soosLogger.info("Configuration read");
-      soosLogger.verboseDebug(
+      soosLogger.debug(
         JSON.stringify(
           obfuscateProperties(args as unknown as Record<string, unknown>, ["apiKey"]),
           null,
