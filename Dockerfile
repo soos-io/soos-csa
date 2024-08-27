@@ -1,4 +1,4 @@
-FROM node:18-slim as BASE
+FROM node:20-slim as BASE
 
 ARG SYFT_VERSION=v1.7.0
 
