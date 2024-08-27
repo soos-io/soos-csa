@@ -4,7 +4,7 @@
   "author": "SOOS",
   "publisher": "SOOS",
   "license": "MIT",
-  "version": "1.2.2",
+  "version": "2.0.0",
   "main": "dist/index.js",
   "scripts": {
     "setup:install": "npm install",
@@ -16,8 +16,7 @@
     "format": "prettier ./src --check",
     "format:fix": "prettier ./src --write",
     "typecheck": "tsc --noEmit",
-    "test:coverage": "npm run test -- --reporter xunit --reporter-option output=ResultsFile.xml",
-    "check": "npm run format && npm run typecheck",
+    "check": "npm run format && npm run typecheck && (npm outdated || exit 0)",
     "link:soos-api-client": "npm link @soos-io/api-client && npm run build && npm link",
     "patch": "npm version patch --no-git-tag-version",
     "patch-api-client": "npm run patch && npm run setup:clean && npm install @soos-io/api-client@latest --save-exact && npm install && npm run check"
@@ -43,14 +42,14 @@
   },
   "homepage": "https://github.com/soos-io/soos-csa#readme",
   "dependencies": {
-    "@soos-io/api-client": "0.3.4",
+    "@soos-io/api-client": "1.0.1",
     "argparse": "^2.0.1",
-    "glob": "^10.3.14",
-    "tslib": "^2.6.2"
+    "glob": "^11.0.0",
+    "tslib": "^2.7.0"
   },
   "devDependencies": {
     "@types/argparse": "^2.0.15",
-    "@types/node": "^20.14.9",
+    "@types/node": "^20.16.1",
     "prettier": "^3.2.5",
     "typescript": "^5.5.3"
   }
