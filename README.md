@@ -43,7 +43,6 @@ docker run -it --rm \
 | `--operatingEnvironment` |  | Set Operating environment for information purposes only. |
 | `--otherOptions` |  | Other Options to pass to syft. |
 | `--projectName` |  | Project Name - this is what will be displayed in the SOOS app. |
-| `--verbose` | `false` | Enable verbose logging. |
 | `targetToScan` |  | The target to scan. Should be a docker image name or a path to a directory containing a Dockerfile. |
 
 ## Scanning Private Images with Authentication

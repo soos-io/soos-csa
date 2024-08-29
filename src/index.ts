@@ -228,7 +228,6 @@ class SOOSCSAAnalysis {
     try {
       const args = this.parseArgs();
       soosLogger.setMinLogLevel(args.logLevel);
-      soosLogger.setVerbose(args.verbose);
       soosLogger.info("Configuration read");
       soosLogger.debug(
         JSON.stringify(
