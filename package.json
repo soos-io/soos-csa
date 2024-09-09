@@ -4,7 +4,7 @@
   "author": "SOOS",
   "publisher": "SOOS",
   "license": "MIT",
-  "version": "2.0.1",
+  "version": "2.0.0",
   "main": "dist/index.js",
   "scripts": {
     "setup:install": "npm install",
@@ -42,7 +42,7 @@
   },
   "homepage": "https://github.com/soos-io/soos-csa#readme",
   "dependencies": {
-    "@soos-io/api-client": "1.0.2",
+    "@soos-io/api-client": "1.0.3",
     "argparse": "^2.0.1",
     "glob": "^11.0.0",
     "tslib": "^2.7.0"
