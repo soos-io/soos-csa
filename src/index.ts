@@ -27,7 +27,6 @@ interface SOOSCSAAnalysisArgs extends IBaseScanArguments {
   outputFormat: OutputFormat;
   otherOptions: string;
   targetToScan: string;
-  workingDirectory: string;
 }
 class SOOSCSAAnalysis {
   constructor(private args: SOOSCSAAnalysisArgs) {}
@@ -53,13 +52,6 @@ class SOOSCSAAnalysis {
       help: "Other Options to pass to syft.",
       required: false,
       nargs: "*",
-    });
-
-    analysisArgumentParser.argumentParser.add_argument("--workingDirectory", {
-      help: "Directory where the SARIF file will be created, used by Github Actions.",
-      required: false,
-      nargs: "*",
-      default: process.cwd(),
     });
 
     analysisArgumentParser.argumentParser.add_argument("targetToScan", {
@@ -170,7 +162,7 @@ class SOOSCSAAnalysis {
           scanType,
           analysisId: result.analysisId,
           outputFormat: this.args.outputFormat,
-          workingDirectory: this.args.workingDirectory,
+          workingDirectory: "/usr/src/app",
         });
       }
 
