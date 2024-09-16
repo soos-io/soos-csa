@@ -1,6 +1,6 @@
 FROM node:20-slim as BASE
 
-ARG SYFT_VERSION=v1.7.0
+ARG SYFT_VERSION=v1.12.2
 
 RUN apt-get update && apt-get install -y wget && \
     wget -qO- https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin ${SYFT_VERSION} && \
