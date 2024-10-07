@@ -4,7 +4,6 @@ import { exit } from "process";
 import { spawn } from "child_process";
 import FormData from "form-data";
 import {
-  ensureEnumValue,
   getAnalysisExitCodeWithMessage,
   obfuscateProperties,
 } from "@soos-io/api-client/dist/utilities";
@@ -40,13 +39,15 @@ class SOOSCSAAnalysis {
 
     analysisArgumentParser.addBaseScanArguments();
 
-    analysisArgumentParser.argumentParser.add_argument("--outputFormat", {
-      help: "Output format for vulnerabilities: only the value SARIF is available at the moment",
-      required: false,
-      type: (value: string) => {
-        return ensureEnumValue(OutputFormat, value);
+    analysisArgumentParser.addEnumArgument(
+      analysisArgumentParser.argumentParser,
+      "--outputFormat",
+      OutputFormat,
+      {
+        help: "Output format for vulnerabilities: only the value SARIF is available at the moment",
+        required: false,
       },
-    });
+    );
 
     analysisArgumentParser.argumentParser.add_argument("--otherOptions", {
       help: "Other Options to pass to syft.",

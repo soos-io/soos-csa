@@ -42,6 +42,7 @@ docker run -it --rm \
 | `--onFailure` | `continue_on_failure` | Action to perform when the scan fails. Options: fail_the_build, continue_on_failure. |
 | `--operatingEnvironment` |  | Set Operating environment for information purposes only. |
 | `--otherOptions` |  | Other Options to pass to syft. |
+| `--outputFormat` |  | Output format for vulnerabilities: only the value SARIF is available at the moment |
 | `--projectName` |  | Project Name - this is what will be displayed in the SOOS app. |
 | `targetToScan` |  | The target to scan. Should be a docker image name or a path to a directory containing a Dockerfile. |
 
