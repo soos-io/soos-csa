@@ -66,7 +66,7 @@ If you need to retrieve the results file for troubleshooting or any other reason
 In the following example, c:/results is the local folder on the host where the results will be stored:
 ```
 docker run -it \
-  -v c:/results:/usr/src/app/results \
+  -v c:/results:/usr/src/app/:rw \
   soosio/csa \
   --clientId=<YOUR_CLIENT_ID> \
   --apiKey=<YOUR_API_KEY> \
