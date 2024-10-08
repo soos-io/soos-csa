@@ -41,8 +41,8 @@ docker run -it --rm \
 | `--logLevel` |  | Minimum level to show logs: DEBUG INFO, WARN, FAIL, ERROR. |
 | `--onFailure` | `continue_on_failure` | Action to perform when the scan fails. Options: fail_the_build, continue_on_failure. |
 | `--operatingEnvironment` |  | Set Operating environment for information purposes only. |
-| `--otherOptions` |  | Other Options to pass to syft. |
-| `--outputFormat` |  | Output format for vulnerabilities: only the value SARIF is available at the moment |
+| `--otherOptions` |  | Other Options to pass to Syft. |
+| `--outputFormat` |  | Output format for vulnerabilities: only the value SARIF is available currently. Be sure to use -v on the Docker command to mount an output directory. |
 | `--projectName` |  | Project Name - this is what will be displayed in the SOOS app. |
 | `targetToScan` |  | The target to scan. Should be a docker image name or a path to a directory containing a Dockerfile. |
 
@@ -61,17 +61,15 @@ docker run -it \
   --projectName="<YOUR_PROJECT_NAME>" \
   <CONTAINER_NAME>:<TAG_NAME>
 ```
-## Retrieving the Results File for Troubleshooting
-If you need to retrieve the results file for troubleshooting or any other reason, you can do so by mounting a volume. This binds the container's results directory to a directory on your host machine.
-In the following example, c:/results is the local folder on the host where the results will be stored:
+## Writing SARIF results or Retrieving the Results File for Troubleshooting
+If you need to output a SARIF file or retrieve the intermediary result file, you can do so by mounting a volume.
+
+This binds the container's results directory to a directory on your host machine. 
+
+In the following example, `c:/temp` is the local folder on the host where the results will be stored:
+
 ```
-docker run -it \
-  -v c:/results:/usr/src/app/results \
-  soosio/csa \
-  --clientId=<YOUR_CLIENT_ID> \
-  --apiKey=<YOUR_API_KEY> \
-  --projectName="<YOUR_PROJECT_NAME>" \
-  <CONTAINER_NAME>:<TAG_NAME>
+docker run -it -v c:/temp:/usr/src/app/:rw soosio/csa --clientId=<YOUR_CLIENT_ID> --apiKey=<YOUR_API_KEY> --projectName="<YOUR_PROJECT_NAME>" <CONTAINER_NAME>:<TAG_NAME>
 ```
 
 Note: The path c:/results is specific to Windows. If you're using Linux or macOS, adjust the path format accordingly.
