@@ -13,4 +13,6 @@ COPY ./tsconfig.json ./tsconfig.json
 RUN npm install
 RUN npm run build
 
+RUN mkdir /usr/src/app
+
 ENTRYPOINT ["node", "--no-deprecation", "dist/index.js"]
