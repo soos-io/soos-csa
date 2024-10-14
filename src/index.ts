@@ -5,6 +5,7 @@ import { spawn } from "child_process";
 import FormData from "form-data";
 import {
   getAnalysisExitCodeWithMessage,
+  isScanDone,
   obfuscateProperties,
 } from "@soos-io/api-client/dist/utilities";
 import {
@@ -71,6 +72,7 @@ class SOOSCSAAnalysis {
     let branchHash: string | undefined;
     let analysisId: string | undefined;
     let scanStatusUrl: string | undefined;
+    let scanStatus: ScanStatus | undefined;
 
     try {
       const result = await soosAnalysisService.setupScan({
@@ -148,7 +150,7 @@ class SOOSCSAAnalysis {
         scanUrl: result.scanUrl,
       });
 
-      const scanStatus = await soosAnalysisService.waitForScanToFinish({
+      scanStatus = await soosAnalysisService.waitForScanToFinish({
         scanStatusUrl,
         scanUrl: result.scanUrl,
         scanType,
@@ -175,7 +177,7 @@ class SOOSCSAAnalysis {
       soosLogger.always(`${exitCodeWithMessage.message} - exit ${exitCodeWithMessage.exitCode}`);
       exit(exitCodeWithMessage.exitCode);
     } catch (error) {
-      if (projectHash && branchHash && analysisId)
+      if (projectHash && branchHash && analysisId && (!scanStatus || !isScanDone(scanStatus)))
         await soosAnalysisService.analysisApiClient.updateScanStatus({
           clientId: this.args.clientId,
           projectHash,
