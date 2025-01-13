@@ -14,7 +14,6 @@ import {
   soosLogger,
   SOOS_CONSTANTS,
   IntegrationName,
-  OutputFormat,
   IntegrationType,
 } from "@soos-io/api-client";
 import AnalysisService from "@soos-io/api-client/dist/services/AnalysisService";
@@ -24,7 +23,7 @@ import AnalysisArgumentParser, {
 } from "@soos-io/api-client/dist/services/AnalysisArgumentParser";
 
 interface SOOSCSAAnalysisArgs extends IBaseScanArguments {
-  outputFormat: OutputFormat;
+  outputFormat: string; // TODO: PA-16483: Remove this
   otherOptions: string;
   targetToScan: string;
 }
@@ -40,15 +39,11 @@ class SOOSCSAAnalysis {
 
     analysisArgumentParser.addBaseScanArguments();
 
-    analysisArgumentParser.addEnumArgument(
-      analysisArgumentParser.argumentParser,
-      "--outputFormat",
-      OutputFormat,
-      {
-        help: "Output format for vulnerabilities: only the value SARIF is available at the moment",
-        required: false,
-      },
-    );
+    analysisArgumentParser.argumentParser.add_argument("--outputFormat", {
+      help: "OBSOLETE: use --exportFormat and --exportFileType instead.",
+      default: undefined,
+      required: false,
+    });
 
     analysisArgumentParser.argumentParser.add_argument("--otherOptions", {
       help: "Other Options to pass to syft.",
@@ -73,6 +68,13 @@ class SOOSCSAAnalysis {
     let analysisId: string | undefined;
     let scanStatusUrl: string | undefined;
     let scanStatus: ScanStatus | undefined;
+
+    // TODO: PA-16483: Remove this
+    if (this.args.outputFormat !== undefined) {
+      soosLogger.warn(
+        "No output will be generated. The --outputFormat parameter has been replaced with --exportFormat and --exportFileType, please use these parameters instead.",
+      );
+    }
 
     try {
       const result = await soosAnalysisService.setupScan({
@@ -156,15 +158,15 @@ class SOOSCSAAnalysis {
         scanType,
       });
 
-      if (this.args.outputFormat !== undefined) {
+      if (this.args.exportFormat !== undefined && this.args.exportFileType !== undefined) {
         await soosAnalysisService.generateFormattedOutput({
           clientId: this.args.clientId,
           projectHash: result.projectHash,
           projectName: this.args.projectName,
           branchHash: result.branchHash,
-          scanType,
           analysisId: result.analysisId,
-          outputFormat: this.args.outputFormat,
+          format: this.args.exportFormat,
+          fileType: this.args.exportFileType,
           workingDirectory: "/usr/src/app",
         });
       }
