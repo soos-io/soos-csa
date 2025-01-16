@@ -38,11 +38,12 @@ docker run -it --rm \
 | `--buildVersion` |  | Version of application build artifacts. |
 | `--clientId` |  | SOOS Client ID - get yours from [SOOS Integration](https://app.soos.io/integrate/containers). Uses `SOOS_API_CLIENT` env value if present. |
 | `--commitHash` |  | The commit hash value from the SCM System. |
+| `--exportFormat`   |  | Write the scan result to this file format. Options: CsafVex, CycloneDx, Sarif, Spdx, SoosIssues, SoosLicenses, SoosPackages, SoosVulnerabilities |
+| `--exportFileType` |  | Write the scan result to this file type (when used with exportFormat). Options: Csv, Html, Json, Text, Xml                                       |
 | `--logLevel` |  | Minimum level to show logs: DEBUG INFO, WARN, FAIL, ERROR. |
 | `--onFailure` | `continue_on_failure` | Action to perform when the scan fails. Options: fail_the_build, continue_on_failure. |
 | `--operatingEnvironment` |  | Set Operating environment for information purposes only. |
 | `--otherOptions` |  | Other Options to pass to Syft. |
-| `--outputFormat` |  | Output format for vulnerabilities: only the value SARIF is available currently. Be sure to use -v on the Docker command to mount an output directory. |
 | `--projectName` |  | Project Name - this is what will be displayed in the SOOS app. |
 | `targetToScan` |  | The target to scan. Should be a docker image name or a path to a directory containing a Dockerfile. |
 
@@ -61,8 +62,8 @@ docker run -it \
   --projectName="<YOUR_PROJECT_NAME>" \
   <CONTAINER_NAME>:<TAG_NAME>
 ```
-## Writing SARIF results or Retrieving the Results File for Troubleshooting
-If you need to output a SARIF file or retrieve the intermediary result file, you can do so by mounting a volume.
+## Exporting Scan or Retrieving the Results File for Troubleshooting
+If you'd like to export a scan or retrieve the intermediary result file, you can do so by mounting a volume.
 
 This binds the container's results directory to a directory on your host machine. 
 
