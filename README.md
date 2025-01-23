@@ -73,4 +73,4 @@ In the following example, `c:/temp` is the local folder on the host where the re
 docker run -it -v c:/temp:/usr/src/app/:rw soosio/csa --clientId=<YOUR_CLIENT_ID> --apiKey=<YOUR_API_KEY> --projectName="<YOUR_PROJECT_NAME>" <CONTAINER_NAME>:<TAG_NAME>
 ```
 
-Note: The path c:/results is specific to Windows. If you're using Linux or macOS, adjust the path format accordingly.
+Note: The path c:/temp is specific to Windows. If you're using Linux or macOS, adjust the path format accordingly.
