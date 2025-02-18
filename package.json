@@ -1,6 +1,6 @@
 {
   "name": "soos-csa",
-  "description": "SOOS Container Vulnerability Scanning",
+  "description": "SOOS Container Vulnerability Scanning. Scan your Docker images for vulnerabilities with SOOS. Register for a free trial at https://app.soos.io/register",
   "author": "SOOS",
   "publisher": "SOOS",
   "license": "MIT",
