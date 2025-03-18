@@ -36,19 +36,14 @@ class SOOSCSAAnalysis {
       version,
     );
 
-    analysisArgumentParser.addBaseScanArguments();
+    analysisArgumentParser.addArgument("otherOptions", "Other Options to pass to syft.");
 
-    analysisArgumentParser.argumentParser.add_argument("--otherOptions", {
-      help: "Other Options to pass to syft.",
-      required: false,
-      nargs: "*",
-    });
+    analysisArgumentParser.addArgument(
+      "targetToScan",
+      "The target to scan. Should be a docker image name or a path to a directory containing a Dockerfile",
+      { useNoOptionKey: true },
+    );
 
-    analysisArgumentParser.argumentParser.add_argument("targetToScan", {
-      help: "The target to scan. Should be a docker image name or a path to a directory containing a Dockerfile",
-    });
-
-    soosLogger.info("Parsing arguments");
     return analysisArgumentParser.parseArguments();
   }
 
