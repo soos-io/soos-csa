@@ -142,6 +142,7 @@ class SOOSCSAAnalysis {
       });
 
       if (
+        isScanDone(scanStatus) &&
         this.args.exportFormat !== AttributionFormatEnum.Unknown &&
         this.args.exportFileType !== AttributionFileTypeEnum.Unknown
       ) {
