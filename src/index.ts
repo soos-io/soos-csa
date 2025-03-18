@@ -15,6 +15,8 @@ import {
   SOOS_CONSTANTS,
   IntegrationName,
   IntegrationType,
+  AttributionFormatEnum,
+  AttributionFileTypeEnum,
 } from "@soos-io/api-client";
 import AnalysisService from "@soos-io/api-client/dist/services/AnalysisService";
 import { SOOS_CSA_CONSTANTS } from "./constants";
@@ -139,7 +141,10 @@ class SOOSCSAAnalysis {
         scanType,
       });
 
-      if (this.args.exportFormat !== undefined && this.args.exportFileType !== undefined) {
+      if (
+        this.args.exportFormat !== AttributionFormatEnum.Unknown &&
+        this.args.exportFileType !== AttributionFileTypeEnum.Unknown
+      ) {
         await soosAnalysisService.generateFormattedOutput({
           clientId: this.args.clientId,
           projectHash: result.projectHash,
