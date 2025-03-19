@@ -15,6 +15,8 @@ import {
   SOOS_CONSTANTS,
   IntegrationName,
   IntegrationType,
+  AttributionFormatEnum,
+  AttributionFileTypeEnum,
 } from "@soos-io/api-client";
 import AnalysisService from "@soos-io/api-client/dist/services/AnalysisService";
 import { SOOS_CSA_CONSTANTS } from "./constants";
@@ -36,19 +38,14 @@ class SOOSCSAAnalysis {
       version,
     );
 
-    analysisArgumentParser.addBaseScanArguments();
+    analysisArgumentParser.addArgument("otherOptions", "Other Options to pass to syft.");
 
-    analysisArgumentParser.argumentParser.add_argument("--otherOptions", {
-      help: "Other Options to pass to syft.",
-      required: false,
-      nargs: "*",
-    });
+    analysisArgumentParser.addArgument(
+      "targetToScan",
+      "The target to scan. Should be a docker image name or a path to a directory containing a Dockerfile",
+      { useNoOptionKey: true },
+    );
 
-    analysisArgumentParser.argumentParser.add_argument("targetToScan", {
-      help: "The target to scan. Should be a docker image name or a path to a directory containing a Dockerfile",
-    });
-
-    soosLogger.info("Parsing arguments");
     return analysisArgumentParser.parseArguments();
   }
 
@@ -144,7 +141,11 @@ class SOOSCSAAnalysis {
         scanType,
       });
 
-      if (this.args.exportFormat !== undefined && this.args.exportFileType !== undefined) {
+      if (
+        isScanDone(scanStatus) &&
+        this.args.exportFormat !== AttributionFormatEnum.Unknown &&
+        this.args.exportFileType !== AttributionFileTypeEnum.Unknown
+      ) {
         await soosAnalysisService.generateFormattedOutput({
           clientId: this.args.clientId,
           projectHash: result.projectHash,
@@ -206,12 +207,10 @@ class SOOSCSAAnalysis {
   }
 
   static async createAndRun(): Promise<void> {
-    soosLogger.info("Starting SOOS CSA Analysis");
-    soosLogger.logLineSeparator();
     try {
       const args = this.parseArgs();
       soosLogger.setMinLogLevel(args.logLevel);
-      soosLogger.info("Configuration read");
+      soosLogger.info("Starting SOOS CSA Analysis");
       soosLogger.debug(
         JSON.stringify(
           obfuscateProperties(args as unknown as Record<string, unknown>, ["apiKey"]),
