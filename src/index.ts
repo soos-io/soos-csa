@@ -207,12 +207,10 @@ class SOOSCSAAnalysis {
   }
 
   static async createAndRun(): Promise<void> {
-    soosLogger.info("Starting SOOS CSA Analysis");
-    soosLogger.logLineSeparator();
     try {
       const args = this.parseArgs();
       soosLogger.setMinLogLevel(args.logLevel);
-      soosLogger.info("Configuration read");
+      soosLogger.info("Starting SOOS CSA Analysis");
       soosLogger.debug(
         JSON.stringify(
           obfuscateProperties(args as unknown as Record<string, unknown>, ["apiKey"]),
