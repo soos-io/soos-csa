@@ -210,7 +210,7 @@ class SOOSCSAAnalysis {
     try {
       const args = this.parseArgs();
       soosLogger.setMinLogLevel(args.logLevel);
-      soosLogger.info("Starting SOOS CSA Analysis");
+      soosLogger.always("Starting SOOS CSA Analysis");
       soosLogger.debug(
         JSON.stringify(
           obfuscateProperties(args as unknown as Record<string, unknown>, ["apiKey"]),
