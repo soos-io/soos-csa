@@ -12,7 +12,6 @@ import {
   ScanStatus,
   ScanType,
   soosLogger,
-  SOOS_CONSTANTS,
   IntegrationName,
   IntegrationType,
   AttributionFormatEnum,
@@ -100,9 +99,7 @@ class SOOSCSAAnalysis {
       await this.runSyft();
       soosLogger.info("Container file generation completed successfully");
       soosLogger.info("Uploading results");
-      const fileReadStream = FileSystem.createReadStream(SOOS_CSA_CONSTANTS.ResultsFilePath, {
-        encoding: SOOS_CONSTANTS.FileUploads.Encoding,
-      });
+      const fileReadStream = FileSystem.createReadStream(SOOS_CSA_CONSTANTS.ResultsFilePath);
 
       const formData = new FormData();
       formData.append("file", fileReadStream);
