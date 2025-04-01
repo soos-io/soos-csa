@@ -6,6 +6,7 @@ import FormData from "form-data";
 import {
   getAnalysisExitCodeWithMessage,
   isScanDone,
+  obfuscateCommandLine,
   obfuscateProperties,
 } from "@soos-io/api-client/dist/utilities";
 import {
@@ -86,6 +87,13 @@ class SOOSCSAAnalysis {
               ],
         scanType,
         toolName: SOOS_CSA_CONSTANTS.ToolName,
+        commandLine:
+          process.argv.length > 2
+            ? obfuscateCommandLine(
+                process.argv.slice(2).join(" "),
+                SOOS_CSA_CONSTANTS.ObfuscatedArguments.map((a) => `--${a}`),
+              )
+            : null,
       });
 
       projectHash = result.projectHash;
@@ -210,7 +218,10 @@ class SOOSCSAAnalysis {
       soosLogger.always("Starting SOOS CSA Analysis");
       soosLogger.debug(
         JSON.stringify(
-          obfuscateProperties(args as unknown as Record<string, unknown>, ["apiKey"]),
+          obfuscateProperties(
+            args as unknown as Record<string, unknown>,
+            SOOS_CSA_CONSTANTS.ObfuscatedArguments,
+          ),
           null,
           2,
         ),
