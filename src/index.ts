@@ -8,6 +8,7 @@ import {
   isScanDone,
   obfuscateCommandLine,
   obfuscateProperties,
+  reassembleCommandLine,
 } from "@soos-io/api-client/dist/utilities";
 import {
   ScanStatus,
@@ -90,7 +91,7 @@ class SOOSCSAAnalysis {
         commandLine:
           process.argv.length > 2
             ? obfuscateCommandLine(
-                process.argv.slice(2).join(" "),
+                reassembleCommandLine(process.argv.slice(2)),
                 SOOS_CSA_CONSTANTS.ObfuscatedArguments.map((a) => `--${a}`),
               )
             : null,
