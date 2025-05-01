@@ -102,8 +102,6 @@ class SOOSCSAAnalysis {
       analysisId = result.analysisId;
       scanStatusUrl = result.scanStatusUrl;
 
-      soosLogger.logLineSeparator();
-
       soosLogger.info("Generating container file for scan");
       await this.runSyft();
       soosLogger.info("Container file generation completed successfully");
@@ -130,8 +128,6 @@ class SOOSCSAAnalysis {
           ?.map((m) => `  ${m.name}: ${m.statusMessage}`)
           .join("\n"),
       );
-
-      soosLogger.logLineSeparator();
 
       await soosAnalysisService.startScan({
         clientId: this.args.clientId,
@@ -227,7 +223,7 @@ class SOOSCSAAnalysis {
           2,
         ),
       );
-      soosLogger.logLineSeparator();
+
       const soosCSAAnalysis = new SOOSCSAAnalysis(args);
       await soosCSAAnalysis.runAnalysis();
     } catch (error) {
