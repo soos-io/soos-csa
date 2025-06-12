@@ -45,8 +45,7 @@
   },
   "homepage": "https://github.com/soos-io/soos-csa#readme",
   "dependencies": {
-    "@soos-io/api-client": "1.5.5",
-    "brace-expansion": "2.0.0",
+    "@soos-io/api-client": "1.5.7",
     "form-data": "^4.0.2",
     "tslib": "^2.7.0"
   },
@@ -59,9 +58,5 @@
     "prettier": "^3.3.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.29.1"
-  },
-  "overrides": {
-    "glob": "^11.0.2",
-    "brace-expansion": "2.0.0"
   }
 }
