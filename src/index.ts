@@ -168,6 +168,13 @@ class SOOSCSAAnalysis {
       soosLogger.always(`${exitCodeWithMessage.message} - exit ${exitCodeWithMessage.exitCode}`);
       exit(exitCodeWithMessage.exitCode);
     } catch (error) {
+      let status = ScanStatus.Error;
+      let message = "Error while performing scan.";
+      if (error instanceof Error && error.message.includes("NoManifestsAccepted")) {
+        status = ScanStatus.NoFiles;
+        message = "No manifests were processed successfully.";
+      }
+
       if (projectHash && branchHash && analysisId && (!scanStatus || !isScanDone(scanStatus)))
         await soosAnalysisService.analysisApiClient.updateScanStatus({
           clientId: this.args.clientId,
@@ -175,8 +182,8 @@ class SOOSCSAAnalysis {
           branchHash,
           scanType,
           scanId: analysisId,
-          status: ScanStatus.Error,
-          message: `Error while performing scan.`,
+          status,
+          message,
         });
       soosLogger.error(error);
       soosLogger.always(`${error} - exit 1`);
