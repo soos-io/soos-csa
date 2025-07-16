@@ -4,7 +4,7 @@
   "author": "SOOS",
   "publisher": "SOOS",
   "license": "MIT",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "main": "dist/index.js",
   "scripts": {
     "setup:install": "npm install",
@@ -45,18 +45,18 @@
   },
   "homepage": "https://github.com/soos-io/soos-csa#readme",
   "dependencies": {
-    "@soos-io/api-client": "1.6.2",
+    "@soos-io/api-client": "1.7.1",
     "form-data": "^4.0.2",
     "tslib": "^2.7.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.24.0",
-    "@types/node": "^22.16.0",
-    "eslint": "^9.24.0",
+    "@eslint/js": "^9.31.0",
+    "@types/node": "^22.16.4",
+    "eslint": "^9.31.0",
     "globals": "^16.0.0",
     "knip": "^5.47.0",
     "prettier": "^3.3.3",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.29.1"
+    "typescript-eslint": "^8.37.0"
   }
 }
