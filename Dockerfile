@@ -1,7 +1,7 @@
 FROM node:22-slim AS base
 
 # See releases on Github - https://github.com/anchore/syft/releases
-ARG SYFT_VERSION=v1.29.0
+ARG SYFT_VERSION=v1.30.0
 
 RUN apt-get update && apt-get install -y wget && \
     wget -qO- https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin ${SYFT_VERSION} && \
