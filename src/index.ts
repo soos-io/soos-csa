@@ -105,7 +105,11 @@ class SOOSCSAAnalysis {
 
       const fileContent = await FileUtilities.readFileAsync(SOOS_CSA_CONSTANTS.ResultsFilePath);
       const formData = new FormData();
-      formData.append("file", convertStringToBase64(fileContent));
+      formData.append(
+        "file",
+        convertStringToBase64(fileContent),
+        SOOS_CSA_CONSTANTS.ResultsFilename,
+      );
 
       const containerFileUploadResponse =
         await soosAnalysisService.analysisApiClient.uploadManifestFiles({
