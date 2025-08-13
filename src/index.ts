@@ -1,9 +1,10 @@
 import { version } from "../package.json";
-import * as FileSystem from "fs";
 import { exit } from "process";
 import { spawn } from "child_process";
 import FormData from "form-data";
 import {
+  convertStringToBase64,
+  FileUtilities,
   getAnalysisExitCodeWithMessage,
   isScanDone,
   obfuscateCommandLine,
@@ -101,10 +102,14 @@ class SOOSCSAAnalysis {
       await this.runSyft();
       soosLogger.info("Container file generation completed successfully");
       soosLogger.info("Uploading results");
-      const fileReadStream = FileSystem.createReadStream(SOOS_CSA_CONSTANTS.ResultsFilePath);
 
+      const fileContent = await FileUtilities.readFileAsync(SOOS_CSA_CONSTANTS.ResultsFilePath);
       const formData = new FormData();
-      formData.append("file", fileReadStream);
+      formData.append(
+        "file",
+        convertStringToBase64(fileContent),
+        SOOS_CSA_CONSTANTS.ResultsFilename,
+      );
 
       const containerFileUploadResponse =
         await soosAnalysisService.analysisApiClient.uploadManifestFiles({
