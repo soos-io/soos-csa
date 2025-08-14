@@ -3,7 +3,7 @@ import { exit } from "process";
 import { spawn } from "child_process";
 import FormData from "form-data";
 import {
-  convertStringToBase64,
+  FileUtilities,
   getAnalysisExitCodeWithMessage,
   isScanDone,
   obfuscateCommandLine,
@@ -24,7 +24,6 @@ import { SOOS_CSA_CONSTANTS } from "./constants";
 import AnalysisArgumentParser, {
   IBaseScanArguments,
 } from "@soos-io/api-client/dist/services/AnalysisArgumentParser";
-import * as FileSystem from "fs";
 
 interface SOOSCSAAnalysisArgs extends IBaseScanArguments {
   otherOptions: string;
@@ -101,18 +100,15 @@ class SOOSCSAAnalysis {
       soosLogger.info("Generating container file for scan");
       await this.runSyft();
       soosLogger.info("Container file generation completed successfully");
-      soosLogger.info("Uploading results");
 
-      const fileContent = await FileSystem.promises.readFile(SOOS_CSA_CONSTANTS.ResultsFilePath, {
-        encoding: "utf-8",
-      });
-      const formData = new FormData();
-      formData.append(
-        "file",
-        convertStringToBase64(fileContent),
-        SOOS_CSA_CONSTANTS.ResultsFilename,
+      soosLogger.info("Reading results");
+      const base64FileContent = await FileUtilities.readFileToBase64Async(
+        SOOS_CSA_CONSTANTS.ResultsFilePath,
       );
+      const formData = new FormData();
+      formData.append("file", base64FileContent, SOOS_CSA_CONSTANTS.ResultsFilename);
 
+      soosLogger.info("Uploading results");
       const containerFileUploadResponse =
         await soosAnalysisService.analysisApiClient.uploadManifestFiles({
           clientId: this.args.clientId,
