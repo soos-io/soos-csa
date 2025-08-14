@@ -1,6 +1,7 @@
 import { version } from "../package.json";
 import { exit } from "process";
 import { spawn } from "child_process";
+import { Readable } from "node:stream";
 import FormData from "form-data";
 import {
   FileUtilities,
@@ -102,11 +103,12 @@ class SOOSCSAAnalysis {
       soosLogger.info("Container file generation completed successfully");
 
       soosLogger.info("Reading results");
-      const base64FileContent = await FileUtilities.readFileToBase64Async(
+      const base64Content = await FileUtilities.readFileToBase64Async(
         SOOS_CSA_CONSTANTS.ResultsFilePath,
       );
+      const base64Stream = Readable.from(base64Content);
       const formData = new FormData();
-      formData.append("file", base64FileContent);
+      formData.append("file", base64Stream, SOOS_CSA_CONSTANTS.ResultsFilename);
 
       soosLogger.info("Uploading results");
       const containerFileUploadResponse =
