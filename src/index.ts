@@ -106,7 +106,11 @@ class SOOSCSAAnalysis {
         SOOS_CSA_CONSTANTS.ResultsFilePath,
       );
       const formData = new FormData();
-      formData.append("file", base64FileContent);
+      formData.append("file", base64FileContent, {
+        knownLength: base64FileContent.length,
+        filename: SOOS_CSA_CONSTANTS.ResultsFilename,
+        contentType: "text/plain",
+      });
 
       soosLogger.info("Uploading results");
       const containerFileUploadResponse =
