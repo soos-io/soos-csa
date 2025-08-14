@@ -1,10 +1,10 @@
 import { version } from "../package.json";
 import { exit } from "process";
 import { spawn } from "child_process";
-import * as fs from "fs";
-import { Transform } from "node:stream";
+import { Readable } from "node:stream";
 import FormData from "form-data";
 import {
+  FileUtilities,
   getAnalysisExitCodeWithMessage,
   isScanDone,
   obfuscateCommandLine,
@@ -103,15 +103,10 @@ class SOOSCSAAnalysis {
       soosLogger.info("Container file generation completed successfully");
 
       soosLogger.info("Reading results");
-      const base64Transform = new Transform({
-        transform(chunk, _, callback) {
-          this.push(chunk.toString("base64"));
-          callback();
-        },
-      });
-      const base64Stream = fs
-        .createReadStream(SOOS_CSA_CONSTANTS.ResultsFilePath, { highWaterMark: 1024 })
-        .pipe(base64Transform);
+      const base64Content = await FileUtilities.readFileToBase64Async(
+        SOOS_CSA_CONSTANTS.ResultsFilePath,
+      );
+      const base64Stream = Readable.from(base64Content);
       const formData = new FormData();
       formData.append("file", base64Stream);
 
