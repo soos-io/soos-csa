@@ -2,7 +2,8 @@ import { version } from "../package.json";
 import { exit } from "process";
 import { spawn } from "child_process";
 import * as fs from "fs";
-import FormData, { Transform } from "form-data";
+import { Transform } from "node:stream";
+import FormData from "form-data";
 import {
   getAnalysisExitCodeWithMessage,
   isScanDone,
