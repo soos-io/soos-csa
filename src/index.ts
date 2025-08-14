@@ -2,7 +2,7 @@ import { version } from "../package.json";
 import { exit } from "process";
 import { spawn } from "child_process";
 import * as fs from "fs";
-import FormData from "form-data";
+import FormData, { Transform } from "form-data";
 import {
   getAnalysisExitCodeWithMessage,
   isScanDone,
@@ -102,9 +102,17 @@ class SOOSCSAAnalysis {
       soosLogger.info("Container file generation completed successfully");
 
       soosLogger.info("Reading results");
-      const fileReadStream = fs.createReadStream(SOOS_CSA_CONSTANTS.ResultsFilePath);
+      const base64Transform = new Transform({
+        transform(chunk, _, callback) {
+          this.push(chunk.toString("base64"));
+          callback();
+        },
+      });
+      const base64Stream = fs
+        .createReadStream(SOOS_CSA_CONSTANTS.ResultsFilePath, { highWaterMark: 1024 })
+        .pipe(base64Transform);
       const formData = new FormData();
-      formData.append("file", fileReadStream);
+      formData.append("file", base64Stream);
 
       soosLogger.info("Uploading results");
       const containerFileUploadResponse =
