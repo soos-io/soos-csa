@@ -108,7 +108,7 @@ class SOOSCSAAnalysis {
       );
       const base64Stream = Readable.from(base64Content);
       const formData = new FormData();
-      formData.append("file", base64Stream);
+      formData.append("file", base64Stream, SOOS_CSA_CONSTANTS.ResultsFilename);
 
       soosLogger.info("Uploading results");
       const containerFileUploadResponse =
