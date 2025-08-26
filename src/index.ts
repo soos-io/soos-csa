@@ -98,6 +98,7 @@ class SOOSCSAAnalysis {
       analysisId = result.analysisId;
       scanStatusUrl = result.scanStatusUrl;
 
+      process.chdir(SOOS_CSA_CONSTANTS.WorkingDirectory);
       soosLogger.info("Generating container file for scan");
       await this.runSyft();
       soosLogger.info("Container file generation completed successfully");
@@ -156,7 +157,7 @@ class SOOSCSAAnalysis {
           analysisId: result.analysisId,
           format: this.args.exportFormat,
           fileType: this.args.exportFileType,
-          workingDirectory: "/usr/src/app",
+          workingDirectory: SOOS_CSA_CONSTANTS.WorkingDirectory,
         });
       }
 
