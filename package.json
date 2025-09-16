@@ -4,7 +4,7 @@
   "author": "SOOS",
   "publisher": "SOOS",
   "license": "MIT",
-  "version": "2.2.10",
+  "version": "2.2.11",
   "main": "dist/index.js",
   "scripts": {
     "setup:install": "npm install",
