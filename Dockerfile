@@ -1,4 +1,4 @@
-FROM node:22-slim AS base
+FROM node:24-slim AS base
 
 # See releases on Github - https://github.com/anchore/syft/releases
 ARG SYFT_VERSION=v1.37.0
