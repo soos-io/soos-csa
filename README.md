@@ -59,13 +59,26 @@ To scan an image from a private registry, follow these steps:
 2. Run the Scan: Use the following command, passing the Docker socket into the container:
 ```
 docker run -it \
-  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /var/run/docker.sock:/var/run/docker.sock 
   soosio/csa \
   --clientId=<YOUR_CLIENT_ID> \
   --apiKey=<YOUR_API_KEY> \
   --projectName="<YOUR_PROJECT_NAME>" \
   <CONTAINER_NAME>:<TAG_NAME>
 ```
+
+## Directory Scanning
+You can scan a directory by adding a mount point:
+```
+docker run -it -v /path/to/files:/usr/src/app:rw soosio/csa --clientId=<YOUR_CLIENT_ID> --apiKey=<YOUR_API_KEY> --projectName="<YOUR_PROJECT_NAME>" /usr/src/app
+```
+
+## File Scanning
+You can scan a file archive (e.g. a .jar file) by adding a mount point and scanning the file:
+```
+docker run -it -v /path/to/files:/usr/src/app:rw soosio/csa --clientId=<YOUR_CLIENT_ID> --apiKey=<YOUR_API_KEY> --projectName="<YOUR_PROJECT_NAME>" /usr/src/app/my-app.jar
+```
+
 ## Exporting Scan or Retrieving the Results File for Troubleshooting
 If you'd like to export a scan or retrieve the intermediary result file, you can do so by mounting a volume.
 
