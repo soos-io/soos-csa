@@ -59,7 +59,7 @@ To scan an image from a private registry, follow these steps:
 2. Run the Scan: Use the following command, passing the Docker socket into the container:
 ```
 docker run -it \
-  -v /var/run/docker.sock:/var/run/docker.sock 
+  -v /var/run/docker.sock:/var/run/docker.sock \
   soosio/csa \
   --clientId=<YOUR_CLIENT_ID> \
   --apiKey=<YOUR_API_KEY> \
