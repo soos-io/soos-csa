@@ -1,0 +1,81 @@
+name: Update Syft Version
+
+on:
+  schedule:
+    # Run daily at 9 AM UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get current Syft version from Dockerfile
+        id: current-version
+        run: |
+          CURRENT_VERSION=$(grep "ARG SYFT_VERSION=" Dockerfile | cut -d'=' -f2)
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current Syft version: $CURRENT_VERSION"
+
+      - name: Get latest Syft release
+        id: latest-release
+        run: |
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/anchore/syft/releases/latest | jq -r .tag_name)
+          echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          echo "Latest Syft version: $LATEST_VERSION"
+
+      - name: Compare versions
+        id: compare
+        run: |
+          CURRENT="${{ steps.current-version.outputs.version }}"
+          LATEST="${{ steps.latest-release.outputs.version }}"
+          
+          if [ "$CURRENT" = "$LATEST" ]; then
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+            echo "Syft is up to date: $CURRENT"
+          else
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            echo "Syft needs update: $CURRENT -> $LATEST"
+          fi
+
+      - name: Update Dockerfile
+        if: steps.compare.outputs.needs_update == 'true'
+        run: |
+          CURRENT="${{ steps.current-version.outputs.version }}"
+          LATEST="${{ steps.latest-release.outputs.version }}"
+          sed -i "s/ARG SYFT_VERSION=$CURRENT/ARG SYFT_VERSION=$LATEST/" Dockerfile
+          echo "Updated Dockerfile from $CURRENT to $LATEST"
+          git diff Dockerfile
+
+      - name: Create Pull Request
+        if: steps.compare.outputs.needs_update == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update Syft to ${{ steps.latest-release.outputs.version }}"
+          title: "chore: update Syft to ${{ steps.latest-release.outputs.version }}"
+          body: |
+            This PR updates the Syft version in the Dockerfile to the latest release.
+            
+            **Changes:**
+            - Update SYFT_VERSION from `${{ steps.current-version.outputs.version }}` to `${{ steps.latest-release.outputs.version }}`
+            
+            **Release Notes:**
+            See https://github.com/anchore/syft/releases/tag/${{ steps.latest-release.outputs.version }}
+            
+            ---
+            
+            This PR was automatically created by the [Update Syft Version workflow](.github/workflows/update-syft-version.yml).
+          branch: automated/update-syft-${{ steps.latest-release.outputs.version }}
+          delete-branch: true
+          base: main
+          labels: |
+            dependencies
+            automated
