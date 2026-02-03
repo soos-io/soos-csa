@@ -21,13 +21,31 @@ jobs:
         id: current-version
         run: |
           CURRENT_VERSION=$(grep "ARG SYFT_VERSION=" Dockerfile | cut -d'=' -f2)
+          if [ -z "$CURRENT_VERSION" ]; then
+            echo "Error: Could not find SYFT_VERSION in Dockerfile"
+            exit 1
+          fi
           echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           echo "Current Syft version: $CURRENT_VERSION"
 
       - name: Get latest Syft release
         id: latest-release
         run: |
-          LATEST_VERSION=$(curl -s https://api.github.com/repos/anchore/syft/releases/latest | jq -r .tag_name)
+          RESPONSE=$(curl -s -w "\n%{http_code}" https://api.github.com/repos/anchore/syft/releases/latest)
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Error: GitHub API returned status code $HTTP_CODE"
+            exit 1
+          fi
+          
+          LATEST_VERSION=$(echo "$BODY" | jq -r .tag_name)
+          if [ -z "$LATEST_VERSION" ] || [ "$LATEST_VERSION" = "null" ]; then
+            echo "Error: Could not parse latest version from GitHub API response"
+            exit 1
+          fi
+          
           echo "version=$LATEST_VERSION" >> $GITHUB_OUTPUT
           echo "Latest Syft version: $LATEST_VERSION"
 
@@ -50,7 +68,15 @@ jobs:
         run: |
           CURRENT="${{ steps.current-version.outputs.version }}"
           LATEST="${{ steps.latest-release.outputs.version }}"
-          sed -i "s/ARG SYFT_VERSION=$CURRENT/ARG SYFT_VERSION=$LATEST/" Dockerfile
+          # Use literal string replacement to avoid regex issues
+          sed -i "s|ARG SYFT_VERSION=${CURRENT}|ARG SYFT_VERSION=${LATEST}|" Dockerfile
+          
+          # Verify the update was successful
+          if ! grep -q "ARG SYFT_VERSION=${LATEST}" Dockerfile; then
+            echo "Error: Failed to update Dockerfile"
+            exit 1
+          fi
+          
           echo "Updated Dockerfile from $CURRENT to $LATEST"
           git diff Dockerfile
 
