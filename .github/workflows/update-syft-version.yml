@@ -63,6 +63,19 @@ jobs:
             echo "Syft needs update: $CURRENT -> $LATEST"
           fi
 
+      - name: Setup Node.js
+        if: steps.compare.outputs.needs_update == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Update package.json version
+        if: steps.compare.outputs.needs_update == 'true'
+        run: |
+          npm run patch
+          echo "Updated package.json version"
+          git diff package.json
+
       - name: Update Dockerfile
         if: steps.compare.outputs.needs_update == 'true'
         run: |
@@ -91,12 +104,13 @@ jobs:
             chore: update Syft to ${{ steps.latest-release.outputs.version }}
           body: |
             This PR updates the Syft version in the Dockerfile to the
-            latest release.
+            latest release and bumps the package.json version.
 
             **Changes:**
             - Update SYFT_VERSION from
             `${{ steps.current-version.outputs.version }}` to
             `${{ steps.latest-release.outputs.version }}`
+            - Bump package.json version (patch)
 
             **Release Notes:**
             See https://github.com/anchore/syft/releases/tag/${{ steps.latest-release.outputs.version }}
