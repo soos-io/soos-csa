@@ -52,3 +52,4 @@ jobs:
           api_key: ${{ secrets.SOOS_API_KEY_DEV }}
           api_url: "https://dev-api.soos.io/api/"
           target_image: soosio/csa:${{ github.sha }}
+          other_docker_run_options: "-v /var/run/docker.sock:/var/run/docker.sock"
