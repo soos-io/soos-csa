@@ -21,7 +21,7 @@ jobs:
 
       - name: Run Test Scan
         run: |
-          docker run soosio/csa:${{ github.sha }} --clientId=${{secrets.SOOS_CLIENT_ID_DEV}} --apiKey=${{secrets.SOOS_API_KEY_DEV}} --apiURL="https://dev-api.soos.io/api/" --projectName="${{ github.event.repository.name }}" alpine
+          docker run soosio/csa:${{ github.sha }} --clientId=${{secrets.SOOS_CLIENT_ID_DEV}} --apiKey=${{secrets.SOOS_API_KEY_DEV}} --apiURL="https://dev-api.soos.io/api/" --projectName="${{ github.event.repository.name }} alpine test" alpine
 
       - name: Save Docker Image
         run: docker save soosio/csa:${{ github.sha }} -o csa-image.tar
