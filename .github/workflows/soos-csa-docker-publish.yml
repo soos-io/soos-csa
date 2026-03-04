@@ -28,5 +28,5 @@ jobs:
     needs: wait-for-publish
     uses: soos-io/.github/.github/workflows/soos-csa-workflow.yml@main
     with:
-      target_image: ${{ github.event_name == 'release' && 'soosio/csa:latest' || startsWith(github.ref, 'refs/tags/v') && 'soosio/csa:beta' || 'soosio/csa:alpha' }}
+      target_image: ${{ format('soosio/csa:{0}', github.event_name == 'release' && 'latest' || startsWith(github.ref, 'refs/tags/v') && 'beta' || 'alpha') }}
     secrets: inherit
