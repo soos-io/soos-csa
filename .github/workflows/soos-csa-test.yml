@@ -4,13 +4,13 @@ on:
   pull_request: {}
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
 
-      - name: Build and Push Docker Image
+      - name: Build Docker Image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -21,3 +21,8 @@ jobs:
       - name: Run Test Scan
         run: |
           docker run soosio/csa:${{ github.sha }} --clientId=${{secrets.SOOS_CLIENT_ID_DEV}} --apiKey=${{secrets.SOOS_API_KEY_DEV}} --apiURL="https://dev-api.soos.io/api/" --projectName="${{ github.event.repository.name }}" alpine
+
+  soos-csa:
+    needs: build-and-test
+    uses: soos-io/.github/.github/workflows/soos-csa-workflow.yml@main
+    secrets: inherit

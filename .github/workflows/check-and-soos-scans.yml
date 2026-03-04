@@ -11,11 +11,6 @@ jobs:
     uses: soos-io/.github/.github/workflows/npm-check-workflow.yml@main
     secrets: inherit
 
-  soos-csa:
-    needs: check
-    uses: soos-io/.github/.github/workflows/soos-csa-workflow.yml@main
-    secrets: inherit
-
   soos-sca:
     needs: check
     uses: soos-io/.github/.github/workflows/soos-sca-workflow.yml@main
