@@ -1,0 +1,75 @@
+name: Push Docker Container
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'v*'
+  release:
+    types: [published]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read version from package.json
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        id: get_version
+        run: |
+          version=$(jq -r .version package.json)
+          echo "Version read from package.json: $version"
+          echo "version=$version" >> $GITHUB_OUTPUT
+
+      - name: Docker meta
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: soosio/csa
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: soosio/csa:alpha
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Promote alpha to beta
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        id: promote-alpha-to-beta
+        run: |
+          docker pull soosio/csa:alpha
+          docker tag soosio/csa:alpha soosio/csa:beta
+          docker push soosio/csa:beta
+          docker tag soosio/csa:alpha soosio/csa:v${{ steps.get_version.outputs.version }}
+          docker push soosio/csa:v${{ steps.get_version.outputs.version }}
+
+      - name: Promote beta to latest
+        if: github.event_name == 'release' && github.event.action == 'published'
+        id: promote-beta-to-latest
+        run: |
+          docker pull soosio/csa:beta
+          docker tag soosio/csa:beta soosio/csa:latest
+          docker push soosio/csa:latest
+
+      - name: Update Docker Hub Description
+        if: github.event_name == 'release' && github.event.action == 'published'
+        uses: peter-evans/dockerhub-description@v5
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: soosio/csa
+          short-description: SOOS CSA - The affordable no limit container vulnerability scanner.
+          readme-filepath: ./README.md
