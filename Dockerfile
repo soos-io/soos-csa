@@ -12,7 +12,7 @@ COPY ./tsconfig.json ./
 COPY ./package.json ./
 COPY ./package-lock.json ./
 
-RUN npm ci && npm run build
+RUN npm ci && npm run build && rm -rf ./src
 
 RUN mkdir /usr/src/app
 
