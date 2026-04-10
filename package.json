@@ -4,7 +4,7 @@
   "author": "SOOS",
   "publisher": "SOOS",
   "license": "MIT",
-  "version": "2.3.7",
+  "version": "2.3.8",
   "main": "dist/index.js",
   "scripts": {
     "setup:install": "npm install --ignore-scripts",
@@ -45,7 +45,7 @@
   },
   "homepage": "https://github.com/soos-io/soos-csa#readme",
   "dependencies": {
-    "@soos-io/api-client": "1.10.5",
+    "@soos-io/api-client": "1.10.6",
     "form-data": "^4.0.5",
     "tslib": "^2.7.0"
   },
